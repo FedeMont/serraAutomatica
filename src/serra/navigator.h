@@ -1,8 +1,8 @@
-#ifndef ___NAVIGATOR_H__
+#ifndef __NAVIGATOR_H__
 #define __NAVIGATOR_H__
 
 #include "Energia.h"
-#include "action.h" 
+#include "enums.h" 
 
 class Navigator
 {

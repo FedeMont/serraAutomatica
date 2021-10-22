@@ -1,10 +1,8 @@
-#ifndef ___DISPLAY_H__
+#ifndef __DISPLAY_H__
 #define __DISPLAY_H__
 
 #include "Energia.h"
 #include "Screen_HX8353E.h"
-#include "navigator.h"
-#include "myClock.h" 
 
 class Display {
 public:
@@ -22,7 +20,6 @@ public:
     const uint16_t grayColour     = 0b0111101111101111;
     const uint16_t darkGrayColour = 0b0011100111100111;
 
-    Screen_HX8353E myScreen;
 
     Display();
 
@@ -30,9 +27,16 @@ public:
     void clear();
     int stringLength(String);
     void write(int, int, String, uint16_t);
+    void write(int, int, String, int, uint16_t);
     void drawRectangle(int, int, int, int, uint16_t, bool);
-    void chooseTime(Navigator, MyClock*);
+    void chooseTime(int, int[]);
+    void homeScreen(String);
 
+    int calculateTextSize(String);
+    int* getScreenSize();
+
+private:
+    Screen_HX8353E myScreen;
 };
 
 #endif

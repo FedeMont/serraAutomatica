@@ -12,4 +12,10 @@ typedef enum Action {
     NONE
 } Action;
 
+typedef enum DayCycle {
+    NONSET,
+    DAY,
+    NIGHT
+} DayCycle;
+
 #endif
