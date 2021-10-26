@@ -7,7 +7,6 @@ MyClock::MyClock() {
     this->isTimeSaved = false;
     this->dayCycle = NONSET;
     this->time = 0;
-    // this->timeString = "00:00";
 }
 
 void MyClock::chooseTime(Action action) {
@@ -25,11 +24,11 @@ void MyClock::chooseTime(Action action) {
             if (this->digits[0] == 2) module = 4;
             else module = 10;
             break;
-        case 3:
-            module = 10;
-            break;
         case 2:
             module = 6;
+            break;
+        case 3:
+            module = 10;
             break;
         default:
             break;
@@ -39,14 +38,39 @@ void MyClock::chooseTime(Action action) {
 
         break;
     case DOWN:
-        if (this->digits[this->selectedDigit] > 0)
+        if (this->digits[this->selectedDigit] > 0) 
+        {
             this->digits[this->selectedDigit]--;
+        }
+        else {
+            switch (this->selectedDigit)
+                {
+                case 0:
+                    if (this->digits[1] > 3) this->digits[this->selectedDigit] = 1;
+                    else this->digits[this->selectedDigit] = 2;
+                    break;
+                case 1:
+                    if (this->digits[0] == 2) this->digits[this->selectedDigit] = 3;
+                    else this->digits[this->selectedDigit] = 9;
+                    break;
+                case 2:
+                    this->digits[this->selectedDigit] = 5;
+                    break;
+                case 3:
+                    this->digits[this->selectedDigit] = 9;
+                    break;
+                default:
+                    break;
+                }
+        }
+
         break;
     case RIGHT:
         this->selectedDigit = (this->selectedDigit + 1) % 4;
         break;
     case LEFT:
         if (this->selectedDigit > 0) this->selectedDigit--;
+        else this->selectedDigit = 3;
         break;
     default:
         break;
@@ -83,7 +107,8 @@ void MyClock::clock() {
         if (this->time >= (7*60 + 30) && this->time <= (18*60 + 30))
         {
             this->dayCycle = DAY;
-        } else 
+        }
+        else 
         {
             this->dayCycle = NIGHT;
         }

@@ -34,6 +34,4 @@ void Controller::start(){
         this->display->homeScreen(this->myClock->getTimeAsString());
     }
     
-
-    
 }

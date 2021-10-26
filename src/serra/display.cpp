@@ -97,6 +97,9 @@ int Display::calculateTextSize(String text) {
 }
 
 int* Display::getScreenSize() {
-    int screenSize[2] = {this->myScreen.screenSizeX(), this->myScreen.screenSizeY()};
+    int *screenSize = new int[2];
+    screenSize[0] = this->myScreen.screenSizeX();
+    screenSize[1] = this->myScreen.screenSizeY();
+    
     return screenSize;
 }

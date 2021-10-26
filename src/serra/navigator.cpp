@@ -14,27 +14,33 @@ void Navigator::begin() {
     pinMode(this->joystickSelect, INPUT_PULLUP);
     pinMode(this->buttonUp, INPUT_PULLUP);
     pinMode(this->buttonDown, INPUT_PULLUP);
+    this->timer_start = millis();
 }
 
 Action Navigator::getAction()
 {
     Action action_t = NONE;
-    bool action[7] = {analogRead(this->joystickY) > 682,
-                        analogRead(this->joystickY) < 341,
-                        analogRead(this->joystickX) < 341,
-                        analogRead(this->joystickX) > 682,
-                        !digitalRead(this->joystickSelect),
-                        !digitalRead(this->buttonUp),
-                        !digitalRead(this->buttonDown)};
 
-    for (int i = 0; i < 7; i++)
-    {
-        if (action[i])
+    if (millis() - timer_start > 300) {
+        bool action[7] = {analogRead(this->joystickY) > 682,
+                            analogRead(this->joystickY) < 341,
+                            analogRead(this->joystickX) < 200, // rotto, va bene cosi
+                            analogRead(this->joystickX) > 682,
+                            !digitalRead(this->joystickSelect),
+                            !digitalRead(this->buttonUp),
+                            !digitalRead(this->buttonDown)};
+
+        for (int i = 0; i < 7; i++)
         {
-            action_t = Action(i);
-            break;
+            if (action[i])
+            {
+                action_t = Action(i);
+                break;
+            }
+            
         }
-        
+
+        this->timer_start = millis();
     }
 
     return action_t;

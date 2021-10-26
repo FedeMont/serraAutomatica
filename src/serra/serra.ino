@@ -2,12 +2,6 @@
 // Include application, user and local libraries
 #include "SPI.h"
 
-//#include "navigator.h"
-//Navigator navigator;
-
-//#include "Screen_HX8353E.h"
-//Screen_HX8353E myScreen;
-
 #include "display.h"
 Display display;
 
@@ -31,37 +25,22 @@ int coloursNumber = 8;
 uint16_t colours[8] = {whiteColour, redColour, orangeColour, yellowColour, greenColour, cyanColour, blueColour, violetColour};
 uint16_t colour;
 
-long timer_start;
-
 void setup() {
   // put your setup code here, to run once:
 
   Serial.begin(115200);
-//  delay(1000);
-  
-//  myScreen.begin();
-//  myScreen.setFontSize(myScreen.fontMax());
-//  myScreen.clear(blackColour);
 
   display.begin();
 
   opt3001.begin(); 
-  timer_start = millis();
-
+  
   navigator.begin();
 
   controller.begin(&display, navigator, &myClock);
 }
 
 void loop() {
-  if (millis() - timer_start > 250) {
-
-    
     controller.start();
-    
-    timer_start = millis();
-  }
-  
 }
 
 uint32_t readOPT() {
@@ -72,21 +51,3 @@ uint32_t readOPT() {
   
   return readings;
 }
-
-//void writeLCD(String text) {
-//  colour = colours[random(coloursNumber - 2) + 1];
-////    myScreen.clear(blackColour);
-//  myScreen.dRectangle(0, 0, myScreen.screenSizeX(), myScreen.screenSizeY(), colour);
-//
-//  myScreen.setFontSolid(true);
-//  myScreen.setPenSolid(false);
-//  myScreen.setOrientation(0);
-//  myScreen.setFontSize(0);
-//
-////  myScreen.setPenSolid(true);
-////  myScreen.dRectangle(4, 4, myScreen.screenSizeX() - 8, 10, blackColour);
-////  myScreen.setPenSolid(false);
-//  myScreen.gText(4, 4, "LIUX:" + text, whiteColour);
-//  
-////  delay(50);
-//}

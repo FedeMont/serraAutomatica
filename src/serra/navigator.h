@@ -13,6 +13,8 @@ public:
 
     void begin();
     Action getAction();
+private:
+    long timer_start;
 };
 
 #endif
