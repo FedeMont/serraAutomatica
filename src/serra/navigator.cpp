@@ -23,8 +23,8 @@ Action Navigator::getAction()
 
     if (millis() - timer_start > 300) {
         bool action[7] = {analogRead(this->joystickY) > 682,
-                            analogRead(this->joystickY) < 341,
-                            analogRead(this->joystickX) < 200, // rotto, va bene cosi
+                            analogRead(this->joystickY) < 200,
+                            analogRead(this->joystickX) < 170, // rotto, va bene cosi
                             analogRead(this->joystickX) > 682,
                             !digitalRead(this->joystickSelect),
                             !digitalRead(this->buttonUp),

@@ -2,7 +2,7 @@
 #define __NAVIGATOR_H__
 
 #include "Energia.h"
-#include "enums.h" 
+#include "types.h" 
 
 class Navigator
 {

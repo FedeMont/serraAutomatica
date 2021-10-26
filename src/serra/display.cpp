@@ -2,6 +2,8 @@
 #include "Screen_HX8353E.h"
 #include "display.h"
 
+#include "types.h" 
+
 Display::Display()
 {
 }
@@ -38,7 +40,6 @@ void Display::write(int x, int y, String text, int fontSize, uint16_t colour)
     this->myScreen.setFontSize(this->myScreen.fontMax());
 }
 
-
 void Display::drawRectangle(int x, int y, int lengthX, int lengthY, uint16_t colour, bool isFilled)
 {
     if (isFilled)
@@ -49,6 +50,24 @@ void Display::drawRectangle(int x, int y, int lengthX, int lengthY, uint16_t col
     if (isFilled)
     {
         this->myScreen.setPenSolid(false);
+    }
+}
+
+void Display::drawImage(tImage image, uint16_t x00, uint16_t y00)
+{
+    uint16_t c;
+
+    for (uint16_t i = 0; i < image.width; i++)
+    {
+        for (uint16_t j = 0; j < image.height; j++)
+        {
+            if ((x00 + i < this->getScreenSize()[0]) && (y00 + j < this->getScreenSize()[1]))
+            {
+                c = image.data[i * image.height + j];
+                if (c != 0x0000)
+                    this->myScreen.point(x00 + i, y00 + j, c);
+            }
+        }
     }
 }
 
@@ -84,22 +103,34 @@ void Display::chooseTime(int selectedDigit, int digits[])
         }
     }
 
-    this->write(this->myScreen.fontSizeX(), (this->myScreen.screenSizeY() - 2*this->myScreen.fontSizeY()), "SEL to confirm", greenColour);
+    this->write(this->myScreen.fontSizeX(), (this->myScreen.screenSizeY() - 2 * this->myScreen.fontSizeY()), "SEL to confirm", greenColour);
+}
+
+void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle)
+{
+    if (dayCycle != this->previousDayCycle)
+    {
+        this->drawImage((dayCycle == DAY) ? sun : moon, 0, 0);
+        this->previousDayCycle = dayCycle;
+    }
+
+    if (isMinutePassed)
+    {
+        this->write((this->myScreen.screenSizeX() - this->calculateTextSize(time) - this->myScreen.fontSizeX()), this->myScreen.fontSizeY(), time, whiteColour);
+    }
 
 }
 
-void Display::homeScreen(String time) {
-    this->write((this->myScreen.screenSizeX() - this->calculateTextSize(time) - this->myScreen.fontSizeX()), this->myScreen.fontSizeY(), time, whiteColour);
-}
-
-int Display::calculateTextSize(String text) {
+int Display::calculateTextSize(String text)
+{
     return (text.length() * this->myScreen.fontSizeX());
 }
 
-int* Display::getScreenSize() {
+int *Display::getScreenSize()
+{
     int *screenSize = new int[2];
     screenSize[0] = this->myScreen.screenSizeX();
     screenSize[1] = this->myScreen.screenSizeY();
-    
+
     return screenSize;
 }

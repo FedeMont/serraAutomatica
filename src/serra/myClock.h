@@ -2,13 +2,12 @@
 #define __MYCLOCK_H__
 
 #include "Energia.h"
-#include "enums.h"
+#include "types.h"
 
 class MyClock {
 public:
     int selectedDigit;
     int digits[4];
-    // String timeString;
 
     bool isTimeSaved;
     DayCycle dayCycle;
@@ -19,7 +18,9 @@ public:
 
     void chooseTime(Action);
     void saveTime();
-    void clock();
+    void clock(bool);
+    void setStartTime();
+    bool isMinutePassed();
     String getTimeAsString();
 
 private:

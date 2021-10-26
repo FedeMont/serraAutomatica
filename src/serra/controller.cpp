@@ -18,6 +18,7 @@ void Controller::chooseTime(Action action) {
 
 void Controller::start(){
     Action action = this->navigator.getAction();
+    bool isMinutePassed = false;
 
     if (!this->myClock->isTimeSaved)
     {
@@ -30,8 +31,9 @@ void Controller::start(){
             this->chooseTime(action);
         }
     } else {
-        this->myClock->clock();
-        this->display->homeScreen(this->myClock->getTimeAsString());
+        isMinutePassed = this->myClock->isMinutePassed();
+        this->myClock->clock(isMinutePassed);
+        this->display->homeScreen(this->myClock->getTimeAsString(), isMinutePassed, this->myClock->dayCycle);
     }
     
 }

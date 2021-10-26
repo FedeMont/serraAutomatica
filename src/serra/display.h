@@ -4,6 +4,9 @@
 #include "Energia.h"
 #include "Screen_HX8353E.h"
 
+#include "day.h"
+#include "night.h"
+
 class Display {
 public:
 
@@ -29,13 +32,15 @@ public:
     void write(int, int, String, uint16_t);
     void write(int, int, String, int, uint16_t);
     void drawRectangle(int, int, int, int, uint16_t, bool);
+    void drawImage(tImage, uint16_t, uint16_t);
     void chooseTime(int, int[]);
-    void homeScreen(String);
+    void homeScreen(String, bool, DayCycle);
 
     int calculateTextSize(String);
     int* getScreenSize();
 
 private:
+    DayCycle previousDayCycle = NONSET;
     Screen_HX8353E myScreen;
 };
 

@@ -5,7 +5,7 @@
 #include "display.h"
 #include "navigator.h"
 #include "myClock.h"
-#include "enums.h" 
+#include "types.h" 
 
 class Controller {
 public:
