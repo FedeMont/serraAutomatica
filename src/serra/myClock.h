@@ -4,14 +4,15 @@
 #include "Energia.h"
 #include "types.h"
 
-class MyClock {
+class MyClock
+{
 public:
     int selectedDigit;
     int digits[4];
 
     bool isTimeSaved;
     DayCycle dayCycle;
-    
+
     unsigned long time;
 
     MyClock();

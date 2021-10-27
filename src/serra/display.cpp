@@ -2,7 +2,7 @@
 #include "Screen_HX8353E.h"
 #include "display.h"
 
-#include "types.h" 
+#include "types.h"
 
 Display::Display()
 {
@@ -110,15 +110,21 @@ void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle)
 {
     if (dayCycle != this->previousDayCycle)
     {
-        this->drawImage((dayCycle == DAY) ? sun : moon, 0, 0);
+        this->drawImage((dayCycle == DAY) ? sun : moon, this->myScreen.fontSizeX(), this->myScreen.fontSizeY());
         this->previousDayCycle = dayCycle;
     }
 
     if (isMinutePassed)
     {
-        this->write((this->myScreen.screenSizeX() - this->calculateTextSize(time) - this->myScreen.fontSizeX()), this->myScreen.fontSizeY(), time, whiteColour);
+        this->write((this->myScreen.screenSizeX() - this->calculateTextSize(time) - this->myScreen.fontSizeX()), 2 * this->myScreen.fontSizeY(), time, whiteColour);
     }
 
+    // int humidity = 30;
+    // String humidityText = "Soil hum.: " + String(humidity) + "%";
+    // this->write((this->getScreenSize()[0] - this->calculateTextSize(humidityText)) / 2, (this->getScreenSize()[1] - this->myScreen.fontSizeY()) / 2, humidityText, whiteColour);
+
+    // this->write(this->myScreen.fontSizeX(), (this->getScreenSize()[1] - 2 * this->myScreen.fontSizeY()), "Watering...", blueColour);
+    // this->drawImage(water, (this->getScreenSize()[0] - water.width - this->myScreen.fontSizeX()), (this->getScreenSize()[1] - water.height - this->myScreen.fontSizeY()));
 }
 
 int Display::calculateTextSize(String text)

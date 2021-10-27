@@ -5,21 +5,25 @@
 #include "display.h"
 #include "navigator.h"
 #include "myClock.h"
-#include "types.h" 
+#include "types.h"
 
-class Controller {
+class Controller
+{
 public:
     Controller();
 
-    void begin(Display*, Navigator, MyClock*);
+    void begin(Display *, Navigator, MyClock *);
     void chooseTime(Action);
 
     void start();
 
 private:
-    Display* display;
+    Display *display;
     Navigator navigator;
-    MyClock* myClock;
+    MyClock *myClock;
+
+    Action action;
+    bool isMinutePassed = true; // true for first clock write
 };
 
 #endif

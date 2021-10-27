@@ -1,7 +1,8 @@
 #ifndef __ACTION_H__
 #define __ACTION_H__
 
-typedef enum Action {
+typedef enum Action
+{
     UP,
     DOWN,
     LEFT,
@@ -12,7 +13,8 @@ typedef enum Action {
     NONE
 } Action;
 
-typedef enum DayCycle {
+typedef enum DayCycle
+{
     NONSET,
     DAY,
     NIGHT

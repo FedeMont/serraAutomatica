@@ -1,39 +1,44 @@
 #include "Energia.h"
 #include "controller.h"
 
-Controller::Controller() {
-
+Controller::Controller()
+{
 }
 
-void Controller::begin(Display* display, Navigator navigator, MyClock* myClock) {
+void Controller::begin(Display *display, Navigator navigator, MyClock *myClock)
+{
     this->display = display;
     this->navigator = navigator;
     this->myClock = myClock;
 }
 
-void Controller::chooseTime(Action action) {
+void Controller::chooseTime(Action action)
+{
     this->display->chooseTime(this->myClock->selectedDigit, this->myClock->digits);
-    this->myClock->chooseTime(action);    
+    this->myClock->chooseTime(action);
 }
 
-void Controller::start(){
-    Action action = this->navigator.getAction();
-    bool isMinutePassed = false;
+void Controller::start()
+{
+    this->action = this->navigator.getAction();
 
     if (!this->myClock->isTimeSaved)
     {
-        if (action == SELECT)
+        if (this->action == SELECT)
         {
             this->myClock->saveTime();
             this->display->clear();
         }
-        else {
-            this->chooseTime(action);
+        else
+        {
+            this->chooseTime(this->action);
         }
-    } else {
-        isMinutePassed = this->myClock->isMinutePassed();
-        this->myClock->clock(isMinutePassed);
-        this->display->homeScreen(this->myClock->getTimeAsString(), isMinutePassed, this->myClock->dayCycle);
     }
-    
+    else
+    {
+        this->display->homeScreen(this->myClock->getTimeAsString(), this->isMinutePassed, this->myClock->dayCycle); // first write
+
+        this->isMinutePassed = this->myClock->isMinutePassed(); // check if minute is really passed
+        this->myClock->clock(this->isMinutePassed);
+    }
 }

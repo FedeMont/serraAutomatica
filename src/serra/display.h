@@ -6,23 +6,23 @@
 
 #include "day.h"
 #include "night.h"
+#include "water.h"
 
-class Display {
+class Display
+{
 public:
-
-    const uint16_t blackColour    = 0b0000000000000000;
-    const uint16_t whiteColour    = 0b1111111111111111;
-    const uint16_t redColour      = 0b1111100000000000;
-    const uint16_t greenColour    = 0b0000011111100000;
-    const uint16_t blueColour     = 0b0000000000011111;
-    const uint16_t yellowColour   = 0b1111111111100000;
-    const uint16_t cyanColour     = 0b0000011111111111;
-    const uint16_t orangeColour   = 0b1111101111100000;
-    const uint16_t magentaColour  = 0b1111100000001111;
-    const uint16_t violetColour   = 0b1111100000011111;
-    const uint16_t grayColour     = 0b0111101111101111;
+    const uint16_t blackColour = 0b0000000000000000;
+    const uint16_t whiteColour = 0b1111111111111111;
+    const uint16_t redColour = 0b1111100000000000;
+    const uint16_t greenColour = 0b0000011111100000;
+    const uint16_t blueColour = 0b0000000000011111;
+    const uint16_t yellowColour = 0b1111111111100000;
+    const uint16_t cyanColour = 0b0000011111111111;
+    const uint16_t orangeColour = 0b1111101111100000;
+    const uint16_t magentaColour = 0b1111100000001111;
+    const uint16_t violetColour = 0b1111100000011111;
+    const uint16_t grayColour = 0b0111101111101111;
     const uint16_t darkGrayColour = 0b0011100111100111;
-
 
     Display();
 
@@ -37,7 +37,7 @@ public:
     void homeScreen(String, bool, DayCycle);
 
     int calculateTextSize(String);
-    int* getScreenSize();
+    int *getScreenSize();
 
 private:
     DayCycle previousDayCycle = NONSET;
