@@ -7,12 +7,17 @@
 class Navigator
 {
 public:
-    uint8_t joystickX, joystickY, joystickSelect, buttonUp, buttonDown;
+    uint8_t joystickX, joystickY, joystickSelect, buttonUp, buttonDown, lightRelay, fanRelay;
 
     Navigator();
 
     void begin();
     Action getAction();
+    void lightOn();
+    void lightOff();
+    void fanOn();
+    void fanOff();
+    
 private:
     long timer_start;
 };

@@ -64,7 +64,7 @@ void Display::drawImage(tImage image, uint16_t x00, uint16_t y00)
             if ((x00 + i < this->getScreenSize()[0]) && (y00 + j < this->getScreenSize()[1]))
             {
                 c = image.data[i * image.height + j];
-                if (c != 0x0000)
+                // if (c != 0x0000)
                     this->myScreen.point(x00 + i, y00 + j, c);
             }
         }

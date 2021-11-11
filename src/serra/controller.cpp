@@ -40,5 +40,13 @@ void Controller::start()
 
         this->isMinutePassed = this->myClock->isMinutePassed(); // check if minute is really passed
         this->myClock->clock(this->isMinutePassed);
+
+        if(this->myClock->dayCycle == DAY)
+        {
+            this->navigator.lightOn();
+        }
+        else{
+            this->navigator.lightOff();
+        }
     }
 }

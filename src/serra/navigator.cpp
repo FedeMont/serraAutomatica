@@ -8,12 +8,16 @@ Navigator::Navigator()
     this->joystickSelect = 5;
     this->buttonUp = 33;
     this->buttonDown = 32;
+    this->lightRelay = 19;
+    this->fanRelay = 18;
 }
 
 void Navigator::begin() {
     pinMode(this->joystickSelect, INPUT_PULLUP);
     pinMode(this->buttonUp, INPUT_PULLUP);
     pinMode(this->buttonDown, INPUT_PULLUP);
+    pinMode(this->lightRelay, OUTPUT);
+    pinMode(this->fanRelay, OUTPUT);
     this->timer_start = millis();
 }
 
@@ -44,4 +48,26 @@ Action Navigator::getAction()
     }
 
     return action_t;
+}
+
+void Navigator::lightOn()
+{
+    this->fanOn();
+    digitalWrite(this->lightRelay, HIGH);
+}
+
+void Navigator::lightOff()
+{
+    this->fanOff();
+    digitalWrite(this->lightRelay, LOW);
+}
+
+void Navigator::fanOn()
+{
+    digitalWrite(this->fanRelay, HIGH);
+}
+
+void Navigator::fanOff()
+{
+    digitalWrite(this->fanRelay, LOW);
 }
