@@ -5,11 +5,12 @@ Controller::Controller()
 {
 }
 
-void Controller::begin(Display *display, Navigator navigator, MyClock *myClock)
+void Controller::begin(Display *display, Navigator navigator, MyClock *myClock, SoilSensor *soilSensor)
 {
     this->display = display;
     this->navigator = navigator;
     this->myClock = myClock;
+    this->soilSensor = soilSensor;
 }
 
 void Controller::chooseTime(Action action)
@@ -36,16 +37,29 @@ void Controller::start()
     }
     else
     {
-        this->display->homeScreen(this->myClock->getTimeAsString(), this->isMinutePassed, this->myClock->dayCycle, this->navigator.readMoisture()); // first write
+        int sensorValue = this->soilSensor->readSensor();
+        bool shouldWatering = this->soilSensor->shouldWatering(sensorValue);
+
+        this->display->homeScreen(this->myClock->getTimeAsString(), this->isMinutePassed, this->myClock->dayCycle, sensorValue, shouldWatering); // first write
+
+        if (shouldWatering)
+        {
+            this->navigator.waterOn();
+        }
+        else
+        {
+            this->navigator.waterOff();
+        }
 
         this->isMinutePassed = this->myClock->isMinutePassed(); // check if minute is really passed
         this->myClock->clock(this->isMinutePassed);
 
-        if(this->myClock->dayCycle == DAY)
+        if (this->myClock->dayCycle == DAY)
         {
             this->navigator.lightOn();
         }
-        else{
+        else
+        {
             this->navigator.lightOff();
         }
     }

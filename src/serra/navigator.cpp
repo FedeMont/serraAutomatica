@@ -10,14 +10,14 @@ Navigator::Navigator()
     this->buttonDown = 32;
     this->lightRelay = 19;
     this->fanRelay = 18;
-    this->soilSensor = 28;
+    this->water = 27;
 }
 
-void Navigator::begin() {
+void Navigator::begin()
+{
     pinMode(this->joystickSelect, INPUT_PULLUP);
     pinMode(this->buttonUp, INPUT_PULLUP);
     pinMode(this->buttonDown, INPUT_PULLUP);
-    pinMode(this->soilSensor, INPUT_PULLUP);
     pinMode(this->lightRelay, OUTPUT);
     pinMode(this->fanRelay, OUTPUT);
     this->timer_start = millis();
@@ -27,14 +27,15 @@ Action Navigator::getAction()
 {
     Action action_t = NONE;
 
-    if (millis() - timer_start > 300) {
+    if (millis() - timer_start > 300)
+    {
         bool action[7] = {analogRead(this->joystickY) > 682,
-                            analogRead(this->joystickY) < 200,
-                            analogRead(this->joystickX) < 170, // rotto, va bene cosi
-                            analogRead(this->joystickX) > 682,
-                            !digitalRead(this->joystickSelect),
-                            !digitalRead(this->buttonUp),
-                            !digitalRead(this->buttonDown)};
+                          analogRead(this->joystickY) < 200,
+                          analogRead(this->joystickX) < 170, // rotto, va bene cosi
+                          analogRead(this->joystickX) > 682,
+                          !digitalRead(this->joystickSelect),
+                          !digitalRead(this->buttonUp),
+                          !digitalRead(this->buttonDown)};
 
         for (int i = 0; i < 7; i++)
         {
@@ -43,7 +44,6 @@ Action Navigator::getAction()
                 action_t = Action(i);
                 break;
             }
-            
         }
 
         this->timer_start = millis();
@@ -74,7 +74,12 @@ void Navigator::fanOff()
     digitalWrite(this->fanRelay, LOW);
 }
 
-int Navigator::readMoisture()
+void Navigator::waterOn()
 {
-    return digitalRead(this->soilSensor);   
+    digitalWrite(this->water, HIGH);
+}
+
+void Navigator::waterOff()
+{
+    digitalWrite(this->water, LOW);
 }

@@ -8,6 +8,8 @@
 #include "night.h"
 #include "water.h"
 
+#include "types.h"
+
 class Display
 {
 public:
@@ -34,7 +36,7 @@ public:
     void drawRectangle(int, int, int, int, uint16_t, bool);
     void drawImage(tImage, uint16_t, uint16_t);
     void chooseTime(int, int[]);
-    void homeScreen(String, bool, DayCycle, int);
+    void homeScreen(String, bool, DayCycle, int, bool);
 
     int calculateTextSize(String);
     int *getScreenSize();
@@ -42,6 +44,9 @@ public:
 private:
     DayCycle previousDayCycle = NONSET;
     Screen_HX8353E myScreen;
+    bool wateringFlag = true;
+
+    long timer_start;
 };
 
 #endif

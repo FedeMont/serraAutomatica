@@ -16,6 +16,8 @@ void Display::begin()
     this->myScreen.setOrientation(0);
     this->myScreen.setFontSize(this->myScreen.fontMax());
     this->myScreen.clear(blackColour);
+
+    this->timer_start = millis();
 }
 
 void Display::clear()
@@ -65,7 +67,7 @@ void Display::drawImage(tImage image, uint16_t x00, uint16_t y00)
             {
                 c = image.data[i * image.height + j];
                 // if (c != 0x0000)
-                    this->myScreen.point(x00 + i, y00 + j, c);
+                this->myScreen.point(x00 + i, y00 + j, c);
             }
         }
     }
@@ -106,7 +108,7 @@ void Display::chooseTime(int selectedDigit, int digits[])
     this->write(this->myScreen.fontSizeX(), (this->myScreen.screenSizeY() - 2 * this->myScreen.fontSizeY()), "SEL to confirm", greenColour);
 }
 
-void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle, int humidity)
+void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle, int humidity, bool shouldWatering)
 {
     if (dayCycle != this->previousDayCycle)
     {
@@ -119,12 +121,29 @@ void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle, in
         this->write((this->myScreen.screenSizeX() - this->calculateTextSize(time) - this->myScreen.fontSizeX()), 2 * this->myScreen.fontSizeY(), time, whiteColour);
     }
 
-    // int humidity = 30;
-    String humidityText = "Soil hum.: " + String(humidity) + "%";
-    this->write((this->getScreenSize()[0] - this->calculateTextSize(humidityText)) / 2, (this->getScreenSize()[1] - this->myScreen.fontSizeY()) / 2, humidityText, whiteColour);
+    if (millis() - this->timer_start > 1000)
+    {
+        String humidityText = "Soil hum.: " + String(humidity) + "%";
+        this->write((this->getScreenSize()[0] - this->calculateTextSize(humidityText)) / 2, (this->getScreenSize()[1] - this->myScreen.fontSizeY()) / 2, humidityText, whiteColour);
 
-    this->write(this->myScreen.fontSizeX(), (this->getScreenSize()[1] - 2 * this->myScreen.fontSizeY()), "Watering...", blueColour);
-    this->drawImage(water, (this->getScreenSize()[0] - water.width - this->myScreen.fontSizeX()), (this->getScreenSize()[1] - water.height - this->myScreen.fontSizeY()));
+        this->timer_start = millis();
+    }
+
+    if (shouldWatering && this->wateringFlag)
+    {
+        Serial.print("Dry: ");
+        Serial.println(this->wateringFlag);
+        this->write(this->myScreen.fontSizeX(), (this->getScreenSize()[1] - 2 * this->myScreen.fontSizeY()), "Watering...", blueColour);
+        this->drawImage(water, (this->getScreenSize()[0] - water.width - this->myScreen.fontSizeX()), (this->getScreenSize()[1] - water.height - this->myScreen.fontSizeY()));
+        this->wateringFlag = !this->wateringFlag;
+    }
+    else if (!shouldWatering && !this->wateringFlag)
+    {
+        Serial.print("Wet: ");
+        Serial.println(this->wateringFlag);
+        this->drawRectangle(0, (this->getScreenSize()[1] - water.height - this->myScreen.fontSizeY()), this->getScreenSize()[0], (water.height + this->myScreen.fontSizeY()), blackColour, true);
+        this->wateringFlag = !this->wateringFlag;
+    }
 }
 
 int Display::calculateTextSize(String text)

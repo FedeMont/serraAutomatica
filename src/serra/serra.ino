@@ -14,6 +14,9 @@ MyClock myClock;
 #include "controller.h"
 Controller controller;
 
+#include "soilSensor.h"
+SoilSensor soilSensor; 
+
 #include <Wire.h>      // Needed by Energia for Tiva C LaunchPad 
 #include "OPT3001.h"
 opt3001 opt3001;
@@ -36,11 +39,11 @@ void setup() {
   
   navigator.begin();
 
-  controller.begin(&display, navigator, &myClock);
+  controller.begin(&display, navigator, &myClock, &soilSensor);
 }
 
 void loop() {
-    controller.start();
+  controller.start();
 }
 
 uint32_t readOPT() {

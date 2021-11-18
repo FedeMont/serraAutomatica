@@ -2,12 +2,13 @@
 #define __NAVIGATOR_H__
 
 #include "Energia.h"
-#include "types.h" 
+#include "types.h"
 
 class Navigator
 {
 public:
-    uint8_t joystickX, joystickY, joystickSelect, buttonUp, buttonDown, lightRelay, fanRelay, soilSensor;
+    uint8_t joystickX, joystickY, joystickSelect, buttonUp, buttonDown,
+        lightRelay, fanRelay, water;
 
     Navigator();
 
@@ -17,8 +18,9 @@ public:
     void lightOff();
     void fanOn();
     void fanOff();
-    int readMoisture();
-    
+    void waterOn();
+    void waterOff();
+
 private:
     long timer_start;
 };
