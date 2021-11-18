@@ -34,7 +34,7 @@ public:
     void drawRectangle(int, int, int, int, uint16_t, bool);
     void drawImage(tImage, uint16_t, uint16_t);
     void chooseTime(int, int[]);
-    void homeScreen(String, bool, DayCycle);
+    void homeScreen(String, bool, DayCycle, int);
 
     int calculateTextSize(String);
     int *getScreenSize();

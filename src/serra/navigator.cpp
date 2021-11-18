@@ -10,12 +10,14 @@ Navigator::Navigator()
     this->buttonDown = 32;
     this->lightRelay = 19;
     this->fanRelay = 18;
+    this->soilSensor = 28;
 }
 
 void Navigator::begin() {
     pinMode(this->joystickSelect, INPUT_PULLUP);
     pinMode(this->buttonUp, INPUT_PULLUP);
     pinMode(this->buttonDown, INPUT_PULLUP);
+    pinMode(this->soilSensor, INPUT_PULLUP);
     pinMode(this->lightRelay, OUTPUT);
     pinMode(this->fanRelay, OUTPUT);
     this->timer_start = millis();
@@ -70,4 +72,9 @@ void Navigator::fanOn()
 void Navigator::fanOff()
 {
     digitalWrite(this->fanRelay, LOW);
+}
+
+int Navigator::readMoisture()
+{
+    return digitalRead(this->soilSensor);   
 }

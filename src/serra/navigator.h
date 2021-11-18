@@ -7,7 +7,7 @@
 class Navigator
 {
 public:
-    uint8_t joystickX, joystickY, joystickSelect, buttonUp, buttonDown, lightRelay, fanRelay;
+    uint8_t joystickX, joystickY, joystickSelect, buttonUp, buttonDown, lightRelay, fanRelay, soilSensor;
 
     Navigator();
 
@@ -17,6 +17,7 @@ public:
     void lightOff();
     void fanOn();
     void fanOff();
+    int readMoisture();
     
 private:
     long timer_start;

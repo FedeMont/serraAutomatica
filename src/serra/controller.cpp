@@ -36,7 +36,7 @@ void Controller::start()
     }
     else
     {
-        this->display->homeScreen(this->myClock->getTimeAsString(), this->isMinutePassed, this->myClock->dayCycle); // first write
+        this->display->homeScreen(this->myClock->getTimeAsString(), this->isMinutePassed, this->myClock->dayCycle, this->navigator.readMoisture()); // first write
 
         this->isMinutePassed = this->myClock->isMinutePassed(); // check if minute is really passed
         this->myClock->clock(this->isMinutePassed);

@@ -106,7 +106,7 @@ void Display::chooseTime(int selectedDigit, int digits[])
     this->write(this->myScreen.fontSizeX(), (this->myScreen.screenSizeY() - 2 * this->myScreen.fontSizeY()), "SEL to confirm", greenColour);
 }
 
-void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle)
+void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle, int humidity)
 {
     if (dayCycle != this->previousDayCycle)
     {
@@ -120,11 +120,11 @@ void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle)
     }
 
     // int humidity = 30;
-    // String humidityText = "Soil hum.: " + String(humidity) + "%";
-    // this->write((this->getScreenSize()[0] - this->calculateTextSize(humidityText)) / 2, (this->getScreenSize()[1] - this->myScreen.fontSizeY()) / 2, humidityText, whiteColour);
+    String humidityText = "Soil hum.: " + String(humidity) + "%";
+    this->write((this->getScreenSize()[0] - this->calculateTextSize(humidityText)) / 2, (this->getScreenSize()[1] - this->myScreen.fontSizeY()) / 2, humidityText, whiteColour);
 
-    // this->write(this->myScreen.fontSizeX(), (this->getScreenSize()[1] - 2 * this->myScreen.fontSizeY()), "Watering...", blueColour);
-    // this->drawImage(water, (this->getScreenSize()[0] - water.width - this->myScreen.fontSizeX()), (this->getScreenSize()[1] - water.height - this->myScreen.fontSizeY()));
+    this->write(this->myScreen.fontSizeX(), (this->getScreenSize()[1] - 2 * this->myScreen.fontSizeY()), "Watering...", blueColour);
+    this->drawImage(water, (this->getScreenSize()[0] - water.width - this->myScreen.fontSizeX()), (this->getScreenSize()[1] - water.height - this->myScreen.fontSizeY()));
 }
 
 int Display::calculateTextSize(String text)
