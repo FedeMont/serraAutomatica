@@ -2,7 +2,7 @@
 #include "Screen_HX8353E.h"
 #include "display.h"
 
-#include "types.h"
+#include "debugPrint.h"
 
 Display::Display()
 {
@@ -58,16 +58,19 @@ void Display::drawRectangle(int x, int y, int lengthX, int lengthY, uint16_t col
 void Display::drawImage(tImage image, uint16_t x00, uint16_t y00)
 {
     uint16_t c;
+    int screenSizeX = this->getScreenSize()[0];
+    int screenSizeY = this->getScreenSize()[1];
 
     for (uint16_t i = 0; i < image.width; i++)
     {
         for (uint16_t j = 0; j < image.height; j++)
         {
-            if ((x00 + i < this->getScreenSize()[0]) && (y00 + j < this->getScreenSize()[1]))
+            if ((x00 + i < screenSizeX) && (y00 + j < screenSizeY))
             {
                 c = image.data[i * image.height + j];
-                // if (c != 0x0000)
-                this->myScreen.point(x00 + i, y00 + j, c);
+                if (c != 0x0000)
+                    this->myScreen.point(x00 + i, y00 + j, c);
+                
             }
         }
     }
@@ -131,16 +134,16 @@ void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle, in
 
     if (shouldWatering && this->wateringFlag)
     {
-        Serial.print("Dry: ");
-        Serial.println(this->wateringFlag);
+        DebugPrint().print("Dry: ");
+        DebugPrint().println(String(this->wateringFlag));
         this->write(this->myScreen.fontSizeX(), (this->getScreenSize()[1] - 2 * this->myScreen.fontSizeY()), "Watering...", blueColour);
         this->drawImage(water, (this->getScreenSize()[0] - water.width - this->myScreen.fontSizeX()), (this->getScreenSize()[1] - water.height - this->myScreen.fontSizeY()));
         this->wateringFlag = !this->wateringFlag;
     }
     else if (!shouldWatering && !this->wateringFlag)
     {
-        Serial.print("Wet: ");
-        Serial.println(this->wateringFlag);
+        DebugPrint().print("Wet: ");
+        DebugPrint().println(String(this->wateringFlag));
         this->drawRectangle(0, (this->getScreenSize()[1] - water.height - this->myScreen.fontSizeY()), this->getScreenSize()[0], (water.height + this->myScreen.fontSizeY()), blackColour, true);
         this->wateringFlag = !this->wateringFlag;
     }
