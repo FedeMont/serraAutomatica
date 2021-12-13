@@ -1,3 +1,5 @@
+// #define DEBUG
+
 #include "Energia.h"
 // Include application, user and local libraries
 #include "SPI.h"
@@ -18,8 +20,8 @@ Controller controller;
 SoilSensor soilSensor; 
 
 #include <Wire.h>      // Needed by Energia for Tiva C LaunchPad 
-#include "OPT3001.h"
-opt3001 opt3001;
+//#include "OPT3001.h"
+//opt3001 opt3001;
 
 uint32_t readOPT();
 void writeLCD(String);
@@ -28,14 +30,16 @@ int coloursNumber = 8;
 uint16_t colours[8] = {whiteColour, redColour, orangeColour, yellowColour, greenColour, cyanColour, blueColour, violetColour};
 uint16_t colour;
 
+unsigned long t_start = millis();
+
 void setup() {
   // put your setup code here, to run once:
 
-  Serial.begin(115200);
+  Serial1.begin(115200);
 
   display.begin();
 
-  opt3001.begin(); 
+//  opt3001.begin(); 
   
   navigator.begin();
 
@@ -43,14 +47,20 @@ void setup() {
 }
 
 void loop() {
-  controller.start();
+//  controller.start();
+
+  String f = "FUCK\n"; 
+  if (millis() - t_start > 10) {
+    Serial1.print(f);
+    t_start = millis();
+  }
 }
 
-uint32_t readOPT() {
-
-  uint32_t readings = opt3001.readResult();
-  Serial.print("LUX Readings = ");
-  Serial.println(readings, DEC);
-  
-  return readings;
-}
+//uint32_t readOPT() {
+//
+//  uint32_t readings = opt3001.readResult();
+//  Serial.print("LUX Readings = ");
+//  Serial.println(readings, DEC);
+//  
+//  return readings;
+//}
