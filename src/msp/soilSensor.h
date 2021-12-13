@@ -1,8 +1,8 @@
-#ifndef __SOILSENSOR_H_
-#define __SOILSENSOR_H_
+#ifndef __SOILSENSOR_H__
+#define __SOILSENSOR_H__
 
 #include "Energia.h"
-#include "types.h" 
+#include "types.h"
 
 class SoilSensor
 {
