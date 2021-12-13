@@ -1,6 +1,8 @@
 #include "Energia.h"
 #include "controller.h"
 
+#include "debugPrint.h"
+
 Controller::Controller()
 {
 }

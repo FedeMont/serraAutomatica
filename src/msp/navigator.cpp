@@ -1,6 +1,8 @@
 #include "Energia.h"
 #include "navigator.h"
 
+#include "debugPrint.h"
+
 Navigator::Navigator()
 {
     this->joystickX = 2;
