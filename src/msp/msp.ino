@@ -1,4 +1,4 @@
-// #define DEBUG
+#define DEBUG
 
 #include "Energia.h"
 // Include application, user and local libraries
@@ -36,6 +36,7 @@ void setup() {
   // put your setup code here, to run once:
 
   Serial1.begin(115200);
+  //Serial.begin(115200);
 
   display.begin();
 
@@ -47,10 +48,10 @@ void setup() {
 }
 
 void loop() {
-//  controller.start();
+  // controller.start();
 
   String f = "FUCK\n"; 
-  if (millis() - t_start > 10) {
+  if (millis() - t_start > 1000) {
     Serial1.print(f);
     t_start = millis();
   }
