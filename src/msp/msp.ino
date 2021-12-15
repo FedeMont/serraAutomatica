@@ -49,9 +49,10 @@ void setup() {
 
 void loop() {
   // controller.start();
-
   // Write
-  Serial.println(Serial1.readStringUntil('\n'));
+  if (Serial1.available()) {
+    Serial.println(Serial1.readStringUntil('\n'));
+  }
 
   // Read 
   // String f = "FUCK\n"; 
