@@ -8,13 +8,18 @@
 
 #include "Types.h"
 
+// #define BOT_TOKEN "5054228318:AAEY4d4M9VQMujE3A-zhw_ao8a5ieW746nU"
+
 class BotHandler
 {
 private:
     String permittedChatIds[2];
     SoftwareSerial *mySerial;
+    const String BOT_TOKEN = "5054228318:AAEY4d4M9VQMujE3A-zhw_ao8a5ieW746nU"; 
+    String chat_ids[2] = {"9202122", "658340861"};
 public:
     UniversalTelegramBot *bot;
+    BotHandler(WiFiClientSecure &);
     BotHandler(const String &, WiFiClientSecure &, String[]);
     ~BotHandler();
 

@@ -5,6 +5,14 @@
 #include "BotHandler.h"
 // #include "Types.h"
 
+BotHandler::BotHandler(WiFiClientSecure &client)
+{
+    this->bot = new UniversalTelegramBot(this->BOT_TOKEN, client);
+
+    for (int i = 0; i < (sizeof(this->permittedChatIds) / sizeof(*this->permittedChatIds)); i++)
+        this->permittedChatIds[i] = this->chat_ids[i];
+}
+
 BotHandler::BotHandler(const String &token, WiFiClientSecure &client, String chatIds[])
 {
     this->bot = new UniversalTelegramBot(token, client);
@@ -64,20 +72,20 @@ void BotHandler::start(String chatId, String fromName)
 
 void BotHandler::setAutomatic(String chatId)
 {
+    this->mySerial->write("/cautomatic\n");
     this->sendMessage(chatId, "Mode set to automatic.");
-    this->mySerial->write("automatic");
 }
 
 void BotHandler::setManual(String chatId)
 {
+    this->mySerial->write("/cmanual\n");
     this->sendMessage(chatId, "Mode set to manual.");
-    this->mySerial->write("manual");
 }
 
 void BotHandler::state(String chatId)
 {
-    this->sendMessage(chatId, "State: ");
-    this->mySerial->write("state");
+    this->mySerial->write("/cstate\n");
+    this->sendMessage(chatId, String("State: " + this->mySerial->readStringUntil('\n')));
 }
 
 void BotHandler::help(String chatId)

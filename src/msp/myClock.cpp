@@ -1,7 +1,5 @@
-#include "Energia.h"
+// #include "Energia.h"
 #include "myClock.h"
-
-#include "debugPrint.h"
 
 MyClock::MyClock()
 {
@@ -91,14 +89,16 @@ void MyClock::chooseTime(Action action)
         break;
     }
 
-    DebugPrint().print(String(this->digits[1]));
-    DebugPrint().print(String(this->digits[0]));
-    DebugPrint().print(":");
-    DebugPrint().print(String(this->digits[2]));
-    DebugPrint().print(String(this->digits[3]));
-    DebugPrint().print(" sel: ");
-    DebugPrint().println(String(this->selectedDigit));
-    DebugPrint().println(String(this->time));
+#ifdef DEBUG
+    Serial.print(this->digits[1]);
+    Serial.print(this->digits[0]);
+    Serial.print(":");
+    Serial.print(this->digits[2]);
+    Serial.print(this->digits[3]);
+    Serial.print(" sel: ");
+    Serial.println(this->selectedDigit);
+    Serial.println(this->time);
+#endif
 }
 
 void MyClock::saveTime()
@@ -142,10 +142,12 @@ void MyClock::clock(bool isMinutePassed)
             this->dayCycle = NIGHT;
         }
 
-        DebugPrint().print("Saved time: ");
-        DebugPrint().print(String(this->time));
-        DebugPrint().print(", DayCycle: ");
-        DebugPrint().println(String(this->dayCycle));
+#ifdef DEBUG
+        Serial.print("Saved time: ");
+        Serial.print(this->time);
+        Serial.print(", DayCycle: ");
+        Serial.println(this->dayCycle);
+#endif
     }
 }
 

@@ -2,6 +2,7 @@
 #define __CONTROLLER_H__
 
 #include <Arduino.h>
+#include <time.h>
 
 #include "BotHandler.h"
 #include "WiFiConfiguration.h"
@@ -15,6 +16,8 @@ private:
     BotHandler *botHandler;
     WiFiConfiguration *wifiConfiguration;
     SoftwareSerial mySerial;
+
+    time_t rawtime;
 public:
     Controller();
     ~Controller();

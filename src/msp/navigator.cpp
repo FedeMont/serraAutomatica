@@ -1,7 +1,5 @@
-#include "Energia.h"
+// #include "Energia.h"
 #include "navigator.h"
-
-#include "debugPrint.h"
 
 Navigator::Navigator()
 {

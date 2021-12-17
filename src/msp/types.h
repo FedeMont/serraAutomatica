@@ -1,6 +1,8 @@
 #ifndef __ACTION_H__
 #define __ACTION_H__
 
+#define DEBUG
+
 typedef enum Action
 {
     UP,
@@ -13,12 +15,23 @@ typedef enum Action
     NONE
 } Action;
 
+typedef enum State
+{
+    MANUAL,
+    AUTOMATIC
+} State;
+
 typedef enum DayCycle
 {
     NONSET,
     DAY,
     NIGHT
 } DayCycle;
+
+typedef struct {
+    String commandType;
+    String commandText;
+} Command;
 
 typedef struct
 {

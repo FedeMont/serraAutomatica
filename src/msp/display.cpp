@@ -1,8 +1,5 @@
-#include "Energia.h"
-#include "Screen_HX8353E.h"
+// #include "Energia.h"
 #include "display.h"
-
-#include "debugPrint.h"
 
 Display::Display()
 {
@@ -70,7 +67,6 @@ void Display::drawImage(tImage image, uint16_t x00, uint16_t y00)
                 c = image.data[i * image.height + j];
                 if (c != 0x0000)
                     this->myScreen.point(x00 + i, y00 + j, c);
-                
             }
         }
     }
@@ -134,16 +130,20 @@ void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle, in
 
     if (shouldWatering && this->wateringFlag)
     {
-        DebugPrint().print("Dry: ");
-        DebugPrint().println(String(this->wateringFlag));
+#ifdef DEBUG
+        Serial.print("Dry: ");
+        Serial.println(this->wateringFlag);
+#endif
         this->write(this->myScreen.fontSizeX(), (this->getScreenSize()[1] - 2 * this->myScreen.fontSizeY()), "Watering...", blueColour);
         this->drawImage(water, (this->getScreenSize()[0] - water.width - this->myScreen.fontSizeX()), (this->getScreenSize()[1] - water.height - this->myScreen.fontSizeY()));
         this->wateringFlag = !this->wateringFlag;
     }
     else if (!shouldWatering && !this->wateringFlag)
     {
-        DebugPrint().print("Wet: ");
-        DebugPrint().println(String(this->wateringFlag));
+#ifdef DEBUG
+        Serial.print("Wet: ");
+        Serial.println(this->wateringFlag);
+#endif
         this->drawRectangle(0, (this->getScreenSize()[1] - water.height - this->myScreen.fontSizeY()), this->getScreenSize()[0], (water.height + this->myScreen.fontSizeY()), blackColour, true);
         this->wateringFlag = !this->wateringFlag;
     }

@@ -19,7 +19,19 @@ void Controller::begin(BotHandler *botHandler, WiFiConfiguration *wiFi)
     this->botHandler->begin(&this->mySerial);
     this->wifiConfiguration->connect();
 
-    this->mySerial.print("START\n");
+    this->mySerial.write("/sSTART\n");
+
+	time(&this->rawtime);
+	struct tm *timeinfo;
+	timeinfo = localtime(&rawtime);
+	char buffer[80];
+	strftime(buffer, 80, "%Y/%m/%dT%r", timeinfo);
+
+    // this->mySerial.write("/d" + buffer);
+
+#ifdef DEBUG
+	Serial.println(buffer);
+#endif
 }
 
 void Controller::start()
