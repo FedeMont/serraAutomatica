@@ -4,7 +4,7 @@
 // Include application, user and local libraries
 #include "SPI.h"
 
-#include "display.h"
+#include "Display.h"
 Display display;
 
 #include "navigator.h"
@@ -20,10 +20,6 @@ Controller controller;
 SoilSensor soilSensor; 
 
 #include <Wire.h>      // Needed by Energia for Tiva C LaunchPad 
-
-int coloursNumber = 8;
-uint16_t colours[8] = {whiteColour, redColour, orangeColour, yellowColour, greenColour, cyanColour, blueColour, violetColour};
-uint16_t colour;
 
 void setup() {
   Serial.begin(115200);

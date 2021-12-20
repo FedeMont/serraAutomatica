@@ -2,7 +2,7 @@
 #define __CONTROLLER_H__
 
 #include "Energia.h"
-#include "display.h"
+#include "Display.h"
 #include "navigator.h"
 #include "myClock.h"
 #include "soilSensor.h"
@@ -15,9 +15,8 @@ public:
     ~Controller();
 
     void begin(Display *, Navigator, MyClock *, SoilSensor *);
-    void chooseTime(Action);
-
     void start();
+
     void readFromESP();
 
 private:
@@ -35,10 +34,12 @@ private:
     int readDelay = 100;
     void writeToESP();
 
-    void manualStart();
+    void chooseState(Action);
+    void chooseTime(Action);
+    void home();
+    void manualStart(Action);
     void automaticStart();
 
-    Action action;
     bool isMinutePassed = true; // true for first clock write
 };
 

@@ -35,6 +35,7 @@ public:
     void write(int, int, String, int, uint16_t);
     void drawRectangle(int, int, int, int, uint16_t, bool);
     void drawImage(tImage, uint16_t, uint16_t);
+    void chooseState(State);
     void chooseTime(int, int[]);
     void homeScreen(String, bool, DayCycle, int, bool);
 
@@ -42,9 +43,11 @@ public:
     int *getScreenSize();
 
 private:
-    DayCycle previousDayCycle = NONSET;
+    DayCycle previousDayCycle = DayCycle::NONSET;
     Screen_HX8353E myScreen;
     bool wateringFlag = true;
+
+    Action previousSelectedAction = Action::NONE;
 
     long timer_start;
 };

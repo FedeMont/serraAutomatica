@@ -1,5 +1,5 @@
 // #include "Energia.h"
-#include "display.h"
+#include "Display.h"
 
 Display::Display()
 {
@@ -72,6 +72,39 @@ void Display::drawImage(tImage image, uint16_t x00, uint16_t y00)
     }
 }
 
+void Display::chooseState(State selectedState)
+{
+    String state, otherState;
+    int stateIndex, otherStateIndex;
+
+    if (selectedState == State::MANUAL) {
+        state = "MANUAL";
+        otherState = "AUTOMATIC";
+        stateIndex = 0;
+        otherStateIndex = (2 * this->myScreen.fontSizeY());
+    } else {
+        state = "AUTOMATIC";
+        otherState = "MANUAL";
+        stateIndex = (2 * this->myScreen.fontSizeY());
+        otherStateIndex = 0;
+    }
+
+    this->write(0, 0, "Select mode:", greenColour);
+
+    int leftStateBound = (this->myScreen.screenSizeX() - this->stringLength(state)) / 2;
+    int leftOtherStateBound = (this->myScreen.screenSizeX() - this->stringLength(otherState)) / 2;
+    int upperBound = (this->myScreen.screenSizeY() - this->myScreen.fontSizeY()) / 2;
+
+    this->drawRectangle(0, upperBound, this->myScreen.screenSizeX(), 3 * this->myScreen.fontSizeY(), blackColour, true);
+
+    this->myScreen.setFontSolid(false);
+    this->drawRectangle(leftStateBound, upperBound + stateIndex, this->stringLength(state), this->myScreen.fontSizeY(), violetColour, true);
+    this->write(leftStateBound, upperBound + stateIndex, state, whiteColour);
+    this->myScreen.setFontSolid(true);
+
+    this->write(leftOtherStateBound, upperBound + otherStateIndex, otherState, violetColour);
+}
+
 void Display::chooseTime(int selectedDigit, int digits[])
 {
     int leftBound = (this->myScreen.screenSizeX() - (this->myScreen.fontSizeX() * 5)) / 2;
@@ -111,7 +144,7 @@ void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle, in
 {
     if (dayCycle != this->previousDayCycle)
     {
-        this->drawImage((dayCycle == DAY) ? sun : moon, this->myScreen.fontSizeX(), this->myScreen.fontSizeY());
+        this->drawImage((dayCycle == DayCycle::DAY) ? sun : moon, this->myScreen.fontSizeX(), this->myScreen.fontSizeY());
         this->previousDayCycle = dayCycle;
     }
 
