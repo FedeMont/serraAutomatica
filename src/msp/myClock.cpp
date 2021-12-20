@@ -6,7 +6,7 @@ MyClock::MyClock()
     this->selectedDigit = 0;
     this->digits[4] = {0};
     this->isTimeSaved = false;
-    this->dayCycle = NONSET;
+    this->dayCycle = DayCycle::NONSET;
     this->time = 0;
 }
 
@@ -14,7 +14,7 @@ void MyClock::chooseTime(Action action)
 {
     switch (action)
     {
-    case UP:
+    case Action::UP:
         int module;
         switch (this->selectedDigit)
         {
@@ -43,7 +43,7 @@ void MyClock::chooseTime(Action action)
         this->digits[this->selectedDigit] = (this->digits[this->selectedDigit] + 1) % module;
 
         break;
-    case DOWN:
+    case Action::DOWN:
         if (this->digits[this->selectedDigit] > 0)
         {
             this->digits[this->selectedDigit]--;
@@ -76,10 +76,10 @@ void MyClock::chooseTime(Action action)
         }
 
         break;
-    case RIGHT:
+    case Action::RIGHT:
         this->selectedDigit = (this->selectedDigit + 1) % 4;
         break;
-    case LEFT:
+    case Action::LEFT:
         if (this->selectedDigit > 0)
             this->selectedDigit--;
         else
@@ -110,15 +110,15 @@ void MyClock::saveTime()
 
 void MyClock::clock(bool isMinutePassed)
 {
-    if (this->dayCycle == NONSET)
+    if (this->dayCycle == DayCycle::NONSET)
     {
         if (this->time >= (7 * 60 + 30) && this->time <= (18 * 60 + 30))
         {
-            this->dayCycle = DAY;
+            this->dayCycle = DayCycle::DAY;
         }
         else
         {
-            this->dayCycle = NIGHT;
+            this->dayCycle = DayCycle::NIGHT;
         }
     }
 
@@ -135,18 +135,18 @@ void MyClock::clock(bool isMinutePassed)
 
         if (this->time >= (7 * 60 + 30) && this->time <= (18 * 60 + 30))
         {
-            this->dayCycle = DAY;
+            this->dayCycle = DayCycle::DAY;
         }
         else
         {
-            this->dayCycle = NIGHT;
+            this->dayCycle = DayCycle::NIGHT;
         }
 
 #ifdef DEBUG
         Serial.print("Saved time: ");
         Serial.print(this->time);
         Serial.print(", DayCycle: ");
-        Serial.println(this->dayCycle);
+        Serial.println(int(this->dayCycle));
 #endif
     }
 }

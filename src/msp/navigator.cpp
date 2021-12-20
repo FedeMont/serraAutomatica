@@ -25,7 +25,7 @@ void Navigator::begin()
 
 Action Navigator::getAction()
 {
-    Action action_t = NONE;
+    Action action_t = Action::NONE;
 
     if (millis() - timer_start > 300)
     {

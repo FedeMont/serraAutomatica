@@ -3,7 +3,7 @@
 
 #define DEBUG
 
-typedef enum Action
+enum class Action
 {
     UP,
     DOWN,
@@ -13,20 +13,21 @@ typedef enum Action
     BUP,
     BDOWN,
     NONE
-} Action;
+};
 
-typedef enum State
+enum class State
 {
     MANUAL,
-    AUTOMATIC
-} State;
+    AUTOMATIC,
+    NONE
+};
 
-typedef enum DayCycle
+enum class DayCycle
 {
-    NONSET,
     DAY,
-    NIGHT
-} DayCycle;
+    NIGHT,
+    NONSET
+};
 
 typedef struct {
     String commandType;

@@ -27,7 +27,9 @@ private:
     SoilSensor *soilSensor;
 
     Command lastCommandRecevied;
-    State state = MANUAL;
+    State state = State::NONE;
+    State previousState = State::NONE;
+    Action previousSelectedAction = Action::NONE;
 
     unsigned long lastTimeRead;
     int readDelay = 100;

@@ -75,16 +75,16 @@ void Controller::writeToESP()
         // }
         // else if (this->lastCommandRecevied.commandText == "manual")
         // {
-        // } 
-        // else 
+        // }
+        // else
         if (this->lastCommandRecevied.commandText == "state")
         {
             switch (this->state)
             {
-            case MANUAL:
+            case State::MANUAL:
                 Serial1.print("manual\n");
                 break;
-            case AUTOMATIC:
+            case State::AUTOMATIC:
                 Serial1.print("automatic\n");
                 break;
 
