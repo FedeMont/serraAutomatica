@@ -2,27 +2,28 @@
 #define __CONTROLLER_H__
 
 #include <Arduino.h>
-#include <time.h>
+#include <NTPClient.h>
 
+#include "SerialCommunication.h"
 #include "BotHandler.h"
 #include "WiFiConfiguration.h"
 #include "Types.h"
-
-class SoftwareSerial;
 
 class Controller
 {
 private:
     BotHandler *botHandler;
     WiFiConfiguration *wifiConfiguration;
-    SoftwareSerial mySerial;
+    SerialCommunication mySerial;
+    NTPClient *timeAndDateClient;
 
-    time_t rawtime;
 public:
     Controller();
     ~Controller();
 
-    void begin(BotHandler*, WiFiConfiguration*);
+    String getTime();
+
+    void begin(BotHandler *, WiFiConfiguration *, NTPClient *);
     void start();
 };
 

@@ -3,20 +3,16 @@
 // #include <UniversalTelegramBot.h> // Universal Telegram Bot Library written by Brian Lough: https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot
 
 #include "BotHandler.h"
-// #include "Types.h"
+#include "Types.h"
 
-BotHandler::BotHandler(WiFiClientSecure &client)
+BotHandler::BotHandler(WiFiClientSecure &client) : bot(this->BOT_TOKEN, client)
 {
-    this->bot = new UniversalTelegramBot(this->BOT_TOKEN, client);
-
     for (int i = 0; i < (sizeof(this->permittedChatIds) / sizeof(*this->permittedChatIds)); i++)
         this->permittedChatIds[i] = this->chat_ids[i];
 }
 
-BotHandler::BotHandler(const String &token, WiFiClientSecure &client, String chatIds[])
+BotHandler::BotHandler(const String &token, WiFiClientSecure &client, String chatIds[]) : bot(token, client)
 {
-    this->bot = new UniversalTelegramBot(token, client);
-
     for (int i = 0; i < (sizeof(this->permittedChatIds) / sizeof(*this->permittedChatIds)); i++)
         this->permittedChatIds[i] = chatIds[i];
 }
@@ -27,7 +23,7 @@ BotHandler::~BotHandler()
 
 int BotHandler::getUpdates()
 {
-    return this->bot->getUpdates(this->bot->last_message_received + 1);
+    return this->bot.getUpdates(this->bot.last_message_received + 1);
 }
 
 bool BotHandler::isIdPermitted(String id)
@@ -45,20 +41,20 @@ bool BotHandler::isIdPermitted(String id)
 
 void BotHandler::sendMessage(String chatId, String text)
 {
-    this->bot->sendMessage(chatId, text, "");
+    this->bot.sendMessage(chatId, text, "");
 }
 
 telegramMessage BotHandler::getMessage(int index)
 {
-    return this->bot->messages[index];
+    return this->bot.messages[index];
 }
 
-void BotHandler::begin(SoftwareSerial *softwareSerial)
+void BotHandler::begin(SerialCommunication *softwareSerial)
 {
     this->mySerial = softwareSerial;
 }
 
-void BotHandler::start(String chatId, String fromName)
+void BotHandler::startMessage(String chatId, String fromName)
 {
     String welcome = "Welcome, " + fromName + ".\n";
     welcome += "Use the following commands to control your greenhouse.\n\n";
@@ -72,20 +68,20 @@ void BotHandler::start(String chatId, String fromName)
 
 void BotHandler::setAutomatic(String chatId)
 {
-    this->mySerial->write("/cautomatic\n");
+    this->mySerial->send("/cautomatic\n");
     this->sendMessage(chatId, "Mode set to automatic.");
 }
 
 void BotHandler::setManual(String chatId)
 {
-    this->mySerial->write("/cmanual\n");
+    this->mySerial->send("/cmanual\n");
     this->sendMessage(chatId, "Mode set to manual.");
 }
 
 void BotHandler::state(String chatId)
 {
-    this->mySerial->write("/cstate\n");
-    this->sendMessage(chatId, String("State: " + this->mySerial->readStringUntil('\n')));
+    this->mySerial->send("/cstate\n");
+    this->sendMessage(chatId, String("State: " + this->mySerial->receive()));
 }
 
 void BotHandler::help(String chatId)
@@ -118,7 +114,7 @@ void BotHandler::handleNewMessages(int newMessages)
         }
 
         if (text == "/start")
-            this->start(chatId, fromName);
+            this->startMessage(chatId, fromName);
         if (text == "/setautomatic")
             this->setAutomatic(chatId);
         if (text == "/setmanual")
@@ -127,5 +123,23 @@ void BotHandler::handleNewMessages(int newMessages)
             this->state(chatId);
         if (text == "/help")
             this->help(chatId);
+    }
+}
+
+void BotHandler::start() {
+    if (millis() > this->lastTimeBotRan + this->botRequestDelay)
+    {
+        int numNewMessages = this->getUpdates();
+
+        while (numNewMessages)
+        {
+#ifdef DEBUG
+            Serial.println("got response");
+#endif
+            this->handleNewMessages(numNewMessages);
+            numNewMessages = this->getUpdates();
+        }
+
+        this->lastTimeBotRan = millis();
     }
 }

@@ -9,14 +9,20 @@ Controller::~Controller()
 {
 }
 
-void Controller::begin(Display *display, Navigator navigator, MyClock *myClock, SoilSensor *soilSensor)
+void Controller::begin(Display *display, Navigator *navigator, MyClock *myClock, SoilSensor *soilSensor)
 {
+    Serial.begin(115200);
+    this->mySerial.begin(115200);
+
     this->display = display;
     this->navigator = navigator;
     this->myClock = myClock;
     this->soilSensor = soilSensor;
 
-    Serial1.begin(115200);
+    this->display->begin();
+    this->navigator->begin();
+
+    // Serial1.begin(115200);
 }
 
 void Controller::chooseState(Action action)
@@ -147,11 +153,11 @@ void Controller::home()
 
     if (shouldWatering)
     {
-        this->navigator.waterOn();
+        this->navigator->waterOn();
     }
     else
     {
-        this->navigator.waterOff();
+        this->navigator->waterOff();
     }
 
     this->isMinutePassed = this->myClock->isMinutePassed(); // check if minute is really passed
@@ -159,11 +165,11 @@ void Controller::home()
 
     if (this->myClock->dayCycle == DayCycle::DAY)
     {
-        this->navigator.lightOn();
+        this->navigator->lightOn();
     }
     else
     {
-        this->navigator.lightOff();
+        this->navigator->lightOff();
     }
 }
 
@@ -194,7 +200,7 @@ void Controller::automaticStart()
 
 void Controller::start()
 {
-    Action action = this->navigator.getAction();
+    Action action = this->navigator->getAction();
 
     switch (this->state)
     {

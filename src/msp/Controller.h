@@ -4,8 +4,9 @@
 #include "Energia.h"
 #include "Display.h"
 #include "navigator.h"
-#include "myClock.h"
+#include "MyClock.h"
 #include "soilSensor.h"
+#include "SerialCommunication.h"
 #include "types.h"
 
 class Controller
@@ -14,16 +15,17 @@ public:
     Controller();
     ~Controller();
 
-    void begin(Display *, Navigator, MyClock *, SoilSensor *);
+    void begin(Display *, Navigator *, MyClock *, SoilSensor *);
     void start();
 
     void readFromESP();
 
 private:
     Display *display;
-    Navigator navigator;
+    Navigator *navigator;
     MyClock *myClock;
     SoilSensor *soilSensor;
+    SerialCommunication mySerial;
 
     Command lastCommandRecevied;
     State state = State::NONE;

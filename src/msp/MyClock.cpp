@@ -1,5 +1,5 @@
 // #include "Energia.h"
-#include "myClock.h"
+#include "MyClock.h"
 
 MyClock::MyClock()
 {
