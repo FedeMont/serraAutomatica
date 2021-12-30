@@ -17,27 +17,40 @@ MyClock myClock;
 Controller controller;
 
 #include "soilSensor.h"
-SoilSensor soilSensor; 
-#include <Wire.h>      // Needed by Energia for Tiva C LaunchPad 
+SoilSensor soilSensor;
+#include <Wire.h> // Needed by Energia for Tiva C LaunchPad
 
+volatile bool hasReceivedMessage = false;
 
-void setup() {
-  // Serial.begin(115200);
+void setup()
+{
+	// Serial.begin(115200);
 
-  // attachInterrupt(5, read1, CHANGE); // funziona
-  // attachInterrupt(3, serialEventRun1, CHANGE); // non funziona
+	// attachInterrupt(5, read1, CHANGE); // funziona
+	// attachInterrupt(3, serialEventRun1, CHANGE); // non funziona
+	// display.begin();
 
-  // display.begin();
+	// navigator.begin();
 
-  // navigator.begin();
-
-  controller.begin(&display, &navigator, &myClock, &soilSensor);
+	controller.begin(&display, &navigator, &myClock, &soilSensor);
 }
 
-void loop() {
-  controller.start();
+void loop()
+{
+	controller.start();
+	if (hasReceivedMessage) {
+		controller.readFromESP();
+		hasReceivedMessage = false;
+	}
 }
 
-void serialEvent1() {
-  controller.readFromESP();
+void uartInterrupt()
+{
+	hasReceivedMessage = true;
+}
+
+void serialEvent1()
+{
+	// controller.readFromESP();
+	uartInterrupt();
 }

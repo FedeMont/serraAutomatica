@@ -28,15 +28,27 @@ BotHandler botHandler = BotHandler(client);
 WiFiConfiguration wifi(ssid, password);
 Controller controller;
 
+volatile bool hasReceivedMessage = false;
+
 void setup()
 {
 	client.setInsecure();
 	// client.setFingerprint("FC C9 84 21 5D 71 A1 A6 BF 17 C8 3A 8D 5E 8D E3 85 AE A9 11"); //api.telegram.org fingerprint generate from http://www.sha1-online.com/
 	// client.setTrustAnchors(&cert);	  // Add root certificate for api.telegram.org
 	controller.begin(&botHandler, &wifi, &timeClient);
+
+	attachInterrupt(digitalPinToInterrupt(13), serialMessage, CHANGE);
 }
 
 void loop()
 {
 	controller.start();
+	if (hasReceivedMessage) {
+		controller.readFromMSP();
+		hasReceivedMessage = false;
+	}
+}
+
+ICACHE_RAM_ATTR void serialMessage() {
+	hasReceivedMessage = true;
 }

@@ -81,7 +81,7 @@ void Controller::readFromESP()
     if (millis() > this->lastTimeRead + this->readDelay)
     {
 
-        String command = Serial1.readStringUntil('\n');
+        String command = this->mySerial.receive();
 
         this->lastCommandRecevied.commandType = command.substring(0, 2);
         this->lastCommandRecevied.commandText = command.substring(2);
