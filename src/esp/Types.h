@@ -5,4 +5,10 @@
 
 #include <Arduino.h>
 
+typedef struct {
+    bool isValid;
+    char commandType;
+    String commandText;
+} Command;
+
 #endif

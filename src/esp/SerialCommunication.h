@@ -17,8 +17,10 @@ public:
 
     void begin(uint32_t);
 
-    void send(const char *);
-    String receive();
+    bool isAvailable();
+    
+    void send(const String &);
+    Command receive();
 };
 
 #endif

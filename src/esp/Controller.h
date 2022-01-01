@@ -17,6 +17,9 @@ private:
     SerialCommunication mySerial;
     NTPClient *timeAndDateClient;
 
+    unsigned long lastTimeRead;
+    int readDelay = 500;
+
 public:
     Controller();
     ~Controller();
@@ -25,6 +28,8 @@ public:
 
     void begin(BotHandler *, WiFiConfiguration *, NTPClient *);
     void start();
+
+    void readFromMSP();
 };
 
 #endif

@@ -37,7 +37,7 @@ void setup()
 	// client.setTrustAnchors(&cert);	  // Add root certificate for api.telegram.org
 	controller.begin(&botHandler, &wifi, &timeClient);
 
-	attachInterrupt(digitalPinToInterrupt(13), serialMessage, CHANGE);
+	// attachInterrupt(digitalPinToInterrupt(13), uartInterrupt, CHANGE);
 }
 
 void loop()
@@ -47,8 +47,15 @@ void loop()
 		controller.readFromMSP();
 		hasReceivedMessage = false;
 	}
+
+	serialEvent1();
 }
 
-ICACHE_RAM_ATTR void serialMessage() {
+ICACHE_RAM_ATTR void uartInterrupt() {
 	hasReceivedMessage = true;
+}
+
+void serialEvent1() {
+	uartInterrupt();
+	// hasReceivedMessage = true;
 }

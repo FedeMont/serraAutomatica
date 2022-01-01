@@ -11,13 +11,30 @@ SerialCommunication::~SerialCommunication()
 void SerialCommunication::begin(uint32_t baud) {
     this->mySerial.begin(baud);
 
-    this->send("/sSTART\n");
+    this->send("/sSTART");
 }
 
-void SerialCommunication::send(const char *text) {
-    this->mySerial.write(text);
+bool SerialCommunication::isAvailable() {
+    return this->mySerial.available() > 0;
 }
 
-String SerialCommunication::receive() {
-    return this->mySerial.readStringUntil('\n');
+void SerialCommunication::send(const String &text) {
+    this->mySerial.println(text);
+}
+
+Command SerialCommunication::receive() {
+    String message = this->mySerial.readStringUntil('\n');
+    // const char* type = message.substring(0, 2).c_str();
+
+    Command command;
+    if (message.substring(0, 2).c_str()[0] == '/') {
+        command.isValid = true;
+        command.commandType = message.substring(0, 2).c_str()[1];
+        command.commandText = message.substring(2);
+    }
+    else {
+        command.isValid = false;
+    }
+
+    return command;
 }
