@@ -13,8 +13,8 @@ public:
 
     void begin(unsigned long);
 
-    void send(const char *);
-    String receive();
+    void send(const String &);
+    Command receive();
 
     String readFrom();
     void writeTo();

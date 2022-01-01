@@ -32,11 +32,13 @@ private:
     State previousState = State::NONE;
     Action previousSelectedAction = Action::NONE;
 
+    String stateToString();
+
     unsigned long lastTimeRead;
     int readDelay = 100;
-    void writeToESP();
 
     void chooseState(Action);
+    void changeState(State);
     void chooseTime(Action);
     void home();
     void manualStart(Action);

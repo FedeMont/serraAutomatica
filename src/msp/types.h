@@ -30,7 +30,8 @@ enum class DayCycle
 };
 
 typedef struct {
-    String commandType;
+    bool isValid;
+    char commandType;
     String commandText;
 } Command;
 

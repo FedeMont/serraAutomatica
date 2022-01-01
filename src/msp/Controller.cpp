@@ -9,6 +9,10 @@ Controller::~Controller()
 {
 }
 
+String Controller::stateToString() {
+    return (this->state == State::MANUAL)? "manual" : ((this->state == State::AUTOMATIC)? "automatic" : "none");
+}
+
 void Controller::begin(Display *display, Navigator *navigator, MyClock *myClock, SoilSensor *soilSensor)
 {
     Serial.begin(115200);
@@ -21,8 +25,6 @@ void Controller::begin(Display *display, Navigator *navigator, MyClock *myClock,
 
     this->display->begin();
     this->navigator->begin();
-
-    // Serial1.begin(115200);
 }
 
 void Controller::chooseState(Action action)
@@ -70,6 +72,13 @@ void Controller::chooseState(Action action)
     }
 }
 
+void Controller::changeState(State state) {
+    if (this->state != state) {
+        this->display->clear();
+        this->state = state;
+    }
+}
+
 void Controller::chooseTime(Action action)
 {
     this->display->chooseTime(this->myClock->selectedDigit, this->myClock->digits);
@@ -80,67 +89,51 @@ void Controller::readFromESP()
 {
     if (millis() > this->lastTimeRead + this->readDelay)
     {
+        Command command = this->mySerial.receive();
 
-        String command = this->mySerial.receive();
-
-        this->lastCommandRecevied.commandType = command.substring(0, 2);
-        this->lastCommandRecevied.commandText = command.substring(2);
-
-        if (this->lastCommandRecevied.commandType == "/s")
-        {
-#ifdef DEBUG
-            Serial.print("start: ");
-            Serial.println(this->lastCommandRecevied.commandText);
-#endif
-        }
-        else if (this->lastCommandRecevied.commandType == "/d")
-        {
-#ifdef DEBUG
-            Serial.print("date: ");
-            Serial.println(this->lastCommandRecevied.commandText);
-#endif
-        }
-        else if (this->lastCommandRecevied.commandType == "/c")
-        {
-#ifdef DEBUG
-            Serial.print("command: ");
-            Serial.println(this->lastCommandRecevied.commandText);
-#endif
-        }
-
-#ifdef DEBUG
-        Serial.println(command);
-#endif
-        this->lastTimeRead = millis();
-    }
-}
-
-void Controller::writeToESP()
-{
-    if (this->lastCommandRecevied.commandType == "/c")
-    {
-        // if (this->lastCommandRecevied.commandText == "automatic")
-        // {
-        // }
-        // else if (this->lastCommandRecevied.commandText == "manual")
-        // {
-        // }
-        // else
-        if (this->lastCommandRecevied.commandText == "state")
-        {
-            switch (this->state)
+        if (command.isValid) {
+            switch (command.commandType)
             {
-            case State::MANUAL:
-                Serial1.print("manual\n");
-                break;
-            case State::AUTOMATIC:
-                Serial1.print("automatic\n");
-                break;
+            case 's': { // start
+#ifdef DEBUG
+                Serial.print("start: ");
+                Serial.println(command.commandText);
+#endif
+            } break;
+            case 'd': { // date
+#ifdef DEBUG
+                Serial.print("date: ");
+                Serial.println(command.commandText);
+#endif
+                this->myClock->saveTime(command.commandText);
+                this->changeState(State::AUTOMATIC);
 
+            } break;
+            case 'c': { // command
+#ifdef DEBUG
+                Serial.print("command: ");
+                Serial.println(command.commandText);
+#endif
+                if (command.commandText == "automatic") {
+                    this->mySerial.send("/d");
+
+                } else if (command.commandText == "manual") {
+                    this->changeState(State::MANUAL);
+
+                } else if (command.commandText == "state") {
+                    this->mySerial.send(String("/i" + this->stateToString()));
+
+                }
+
+            } break;
             default:
                 break;
             }
+
+            this->lastCommandRecevied = command;
         }
+        
+        this->lastTimeRead = millis();
     }
 }
 
@@ -218,5 +211,5 @@ void Controller::start()
     }
 
     serialEventRun1();
-    writeToESP();
+    // writeToESP();
 }

@@ -19,6 +19,7 @@ public:
 
     void chooseTime(Action);
     void saveTime();
+    void saveTime(const String&);
     void clock(bool);
     void setStartTime();
     bool isMinutePassed();
