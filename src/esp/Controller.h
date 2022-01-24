@@ -20,6 +20,8 @@ private:
     unsigned long lastTimeRead;
     int readDelay = 500;
 
+    String infoMessage = "";
+
 public:
     Controller();
     ~Controller();

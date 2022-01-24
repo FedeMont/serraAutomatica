@@ -9,6 +9,7 @@ typedef struct {
     bool isValid;
     char commandType;
     String commandText;
+    String chatId;
 } Command;
 
 #endif

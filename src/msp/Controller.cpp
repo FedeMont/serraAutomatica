@@ -9,8 +9,47 @@ Controller::~Controller()
 {
 }
 
-String Controller::stateToString() {
-    return (this->state == State::MANUAL)? "manual" : ((this->state == State::AUTOMATIC)? "automatic" : "none");
+void Controller::sendState(String chatId) {
+
+    String msgs[5] = {};
+
+    msgs[0] = "/iThe green house is in " + String((this->state == State::MANUAL)? "manual" :"automatic") + " mode.\n";
+    msgs[1] = "/iNow is " + String((this->myClock->dayCycle == DayCycle::DAY)? "day" : "night") + ".\n";
+    msgs[2] = "/iThe time is " + this->myClock->getTimeAsString() + ".\n";
+    msgs[3] = "/iThe plant is " + String((this->isWatering == true)? "being watered" : "not being watered") + ".\n";
+    msgs[4] = "/iSoil sensor is at " + String(this->soilSensor->readSensor()) + "%.\n";
+    msgs[5] = "/e" + chatId;
+
+#ifdef DEBUG
+        Serial.println("message created.");
+#endif
+
+    // this->mySerial.send(msg);
+    int i = 0;
+    int last_timer = millis();
+    while (millis() > last_timer + 5 && i < 6) {
+#ifdef DEBUG
+        Serial.print("entered loop: i: " + String(i) + ", msg: ");
+        Serial.println(msgs[i]);
+#endif
+        this->mySerial.send(msgs[i]);
+
+        last_timer = millis();
+        i++;
+    }
+
+#ifdef DEBUG
+        Serial.println("done loop");
+#endif
+    
+
+    // this->mySerial.send(String("/iThe green house is in " + String((this->state == State::MANUAL)? "manual" :"automatic") + " mode."));
+    // this->mySerial.send(String("/iNow is " + String((this->myClock->dayCycle == DayCycle::DAY)? "day" : "night") + "."));
+    // this->mySerial.send(String("/iThe time is " + this->myClock->getTimeAsString() + "."));
+    // this->mySerial.send(String("/iThe plant is " + String((this->isWatering == true)? "being watered" : "not being watered") + "."));
+    // this->mySerial.send(String("/iSoil sensor is at " + String(this->soilSensor->readSensor()) + "%."));
+
+    // this->mySerial.send(String("/e" + chatId));
 }
 
 void Controller::begin(Display *display, Navigator *navigator, MyClock *myClock, SoilSensor *soilSensor)
@@ -67,6 +106,9 @@ void Controller::chooseState(Action action)
         {
             this->state = this->previousState;
             this->display->clear();
+            if (this->state == State::AUTOMATIC)
+                this->mySerial.send("/d");
+                this->readFromESP();
         }
         break;
     }
@@ -99,6 +141,7 @@ void Controller::readFromESP()
                 Serial.print("start: ");
                 Serial.println(command.commandText);
 #endif
+                this->mySerial.send("/sSTART2");
             } break;
             case 'd': { // date
 #ifdef DEBUG
@@ -121,8 +164,7 @@ void Controller::readFromESP()
                     this->changeState(State::MANUAL);
 
                 } else if (command.commandText == "state") {
-                    this->mySerial.send(String("/i" + this->stateToString()));
-
+                    this->sendState(command.chatId);
                 }
 
             } break;
@@ -146,10 +188,12 @@ void Controller::home()
 
     if (shouldWatering)
     {
+        this->isWatering = true;
         this->navigator->waterOn();
     }
     else
     {
+        this->isWatering = false;
         this->navigator->waterOff();
     }
 

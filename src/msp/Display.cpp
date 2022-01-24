@@ -156,6 +156,7 @@ void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle, in
     if (millis() - this->timer_start > 1000)
     {
         String humidityText = "Soil hum.: " + String(humidity) + "%";
+        this->drawRectangle(0, (this->getScreenSize()[1] - this->myScreen.fontSizeY()) / 2, this->getScreenSize()[0], this->myScreen.fontSizeY(), blackColour, true);
         this->write((this->getScreenSize()[0] - this->calculateTextSize(humidityText)) / 2, (this->getScreenSize()[1] - this->myScreen.fontSizeY()) / 2, humidityText, whiteColour);
 
         this->timer_start = millis();

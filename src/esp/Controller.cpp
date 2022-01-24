@@ -28,10 +28,12 @@ void Controller::begin(BotHandler *botHandler, WiFiConfiguration *wiFi, NTPClien
     this->botHandler->begin(&this->mySerial);
     this->wifiConfiguration->connect();
     this->timeAndDateClient->begin();
+
+    this->mySerial.send("/sSTART2");
 }
 
 void Controller::readFromMSP() {
-    if (this->mySerial.isAvailable() && (millis() > this->lastTimeRead + this->readDelay))
+    if (this->mySerial.isAvailable()) // && (millis() > this->lastTimeRead + this->readDelay))
     {
         Command command = this->mySerial.receive();
         if (command.isValid) {
@@ -62,7 +64,16 @@ void Controller::readFromMSP() {
                 Serial.print("info: ");
                 Serial.println(command.commandText);
 #endif
-
+                this->infoMessage += command.commandText + "\n";
+            } break;
+            case 'e': { //end
+#ifdef DEBUG
+                Serial.print("end: ");
+                Serial.println(command.commandText);
+                Serial.println(command.chatId);
+#endif
+                this->botHandler->sendMessage(command.chatId, this->infoMessage);
+                this->infoMessage = "";
             } break;
 
             default:

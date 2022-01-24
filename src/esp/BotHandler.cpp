@@ -68,20 +68,21 @@ void BotHandler::startMessage(String chatId, String fromName)
 
 void BotHandler::setAutomatic(String chatId)
 {
-    this->mySerial->send("/cautomatic\n");
+    this->mySerial->send("/cautomatic");
     this->sendMessage(chatId, "Mode set to automatic.");
 }
 
 void BotHandler::setManual(String chatId)
 {
-    this->mySerial->send("/cmanual\n");
+    this->mySerial->send("/cmanual");
     this->sendMessage(chatId, "Mode set to manual.");
 }
 
 void BotHandler::state(String chatId)
 {
-    this->mySerial->send("/cstate\n");
-    this->sendMessage(chatId, String("State: " + this->mySerial->receive()));
+    this->mySerial->send("/cstate::" + chatId);
+
+    // this->sendMessage(chatId, String("State: " + this->mySerial->receive()));
 }
 
 void BotHandler::help(String chatId)

@@ -32,7 +32,7 @@ private:
     State previousState = State::NONE;
     Action previousSelectedAction = Action::NONE;
 
-    String stateToString();
+    void sendState(String);
 
     unsigned long lastTimeRead;
     int readDelay = 100;
@@ -45,6 +45,8 @@ private:
     void automaticStart();
 
     bool isMinutePassed = true; // true for first clock write
+    bool isWatering = false;
+
 };
 
 #endif
