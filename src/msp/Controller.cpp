@@ -163,11 +163,18 @@ void Controller::readFromESP()
                 } else if (command.commandText == "manual") {
                     this->changeState(State::MANUAL);
 
-                } else if (command.commandText == "state") {
-                    this->sendState(command.chatId);
                 }
 
             } break;
+            case 'i': {
+#ifdef DEBUG
+                Serial.print("info: ");
+                Serial.println(command.commandText);
+#endif
+                if (command.commandText == "state") {
+                    this->sendState(command.chatId);
+                }
+            }
             default:
                 break;
             }

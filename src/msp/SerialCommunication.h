@@ -11,6 +11,7 @@ public:
     SerialCommunication(/* args */);
     ~SerialCommunication();
 
+    void flush();
     void begin(unsigned long);
 
     void send(const String &);

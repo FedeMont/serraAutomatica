@@ -8,6 +8,12 @@ SerialCommunication::~SerialCommunication()
 {
 }
 
+void SerialCommunication::flush() {
+    while (this->mySerial.available() > 0) {
+        char t = this->mySerial.read();
+    }
+}
+
 void SerialCommunication::begin(uint32_t baud) {
     this->mySerial.begin(baud);
 
@@ -29,7 +35,7 @@ void SerialCommunication::send(const String &text) {
 
 Command SerialCommunication::receive() {
     String message = this->mySerial.readStringUntil('@');
-    this->mySerial.flush();
+    // this->mySerial.flush();
     // message = message.substring(0, message.length());
 
 #ifdef DEBUG
@@ -37,22 +43,22 @@ Command SerialCommunication::receive() {
     Serial.println(message);
 #endif
 
-    String type = message.substring(0, 2).c_str();
-    String text = "";
-    String chatId = "";
-    if (message.indexOf("::") == -1) { // nothing found
-        text = message.substring(2);
-        chatId = "";
-    } else {
-        text = message.substring(2, message.indexOf("::"));
-        chatId = message.substring(message.indexOf("::") + 2);
-    }
+    String type = message.substring(0, 2);
+    String text = message.substring(2);
+    // String chatId = "";
+    // if (message.indexOf("\-") == -1) { // nothing found
+        // text = message.substring(2);
+        // chatId = "";
+    // } else {
+    //     text = message.substring(2, message.indexOf("\-"));
+    //     chatId = message.substring(message.indexOf("\-") + 2);
+    // }
 
 #ifdef DEBUG
     Serial.println("RECEIVED");
     Serial.println(type);
     Serial.println(text);
-    Serial.println(chatId);
+    // Serial.println(chatId);
 #endif
 
     Command command;
@@ -60,11 +66,13 @@ Command SerialCommunication::receive() {
         command.isValid = true;
         command.commandType = type.charAt(1);
         command.commandText = text;
-        command.chatId = chatId;
+        // command.chatId = chatId;
     }
     else {
         command.isValid = false;
     }
+
+    this->flush();
 
     return command;
 }

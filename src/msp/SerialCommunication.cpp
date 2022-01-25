@@ -8,6 +8,12 @@ SerialCommunication::~SerialCommunication()
 {
 }
 
+void SerialCommunication::flush() {
+    while (Serial1.available() > 0) {
+        char t = Serial1.read();
+    }
+}
+
 void SerialCommunication::begin(unsigned long baud) {
     Serial1.begin(baud);
 
@@ -15,12 +21,22 @@ void SerialCommunication::begin(unsigned long baud) {
 }
 
 void SerialCommunication::send(const String &text) {
-    Serial1.print(String(text + '@'));
+    String message = String(text + '@');
+#ifdef DEBUG
+    Serial.print("Sending message: ");
+    Serial.println(message);
+#endif
+    Serial1.print(message);
 }
 
 Command SerialCommunication::receive() {
-    String message = Serial1.readStringUntil('@');
-    Serial1.flush();
+    // char msg[255];
+    // strcpy(msg, Serial1.readStringUntil('@').c_str());
+
+    String message = String(Serial1.readStringUntil('@'));
+    message.trim();
+    this->flush();
+
     // message = message.substring(0, message.length());
 
 #ifdef DEBUG
@@ -28,15 +44,16 @@ Command SerialCommunication::receive() {
     Serial.println(message);
 #endif
 
-    String type = message.substring(0, 2).c_str();
+    String type = String(message.substring(0, 2));
+    // (message.substring(2)).toCharArray(msg, (message.substring(2)).length() + 1);
     String text = "";
     String chatId = "";
-    if (message.indexOf("::") == -1) { // nothing found
+
+    if (type != "/i") {
         text = message.substring(2);
-        chatId = "";
     } else {
-        text = message.substring(2, message.indexOf("::"));
-        chatId = message.substring(message.indexOf("::") + 2);
+        text = message.substring(2, 7);
+        chatId = message.substring(8);
     }
 
 #ifdef DEBUG
@@ -56,6 +73,8 @@ Command SerialCommunication::receive() {
     else {
         command.isValid = false;
     }
+
+    // this->flush();
 
     return command;
 }

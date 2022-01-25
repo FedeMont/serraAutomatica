@@ -15,6 +15,7 @@ public:
     SerialCommunication(/* args */);
     ~SerialCommunication();
 
+    void flush();
     void begin(uint32_t);
 
     bool isAvailable();
