@@ -80,7 +80,8 @@ void BotHandler::setManual(String chatId)
 
 void BotHandler::state(String chatId)
 {
-    this->mySerial->send(String("/istate" + chatId));
+    this->mySerial->send("/cstate");
+    this->mySerial->send(String("/i" + chatId));
 
     // this->sendMessage(chatId, String("State: " + this->mySerial->receive()));
 }

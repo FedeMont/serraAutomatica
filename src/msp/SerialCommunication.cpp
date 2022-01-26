@@ -45,22 +45,12 @@ Command SerialCommunication::receive() {
 #endif
 
     String type = String(message.substring(0, 2));
-    // (message.substring(2)).toCharArray(msg, (message.substring(2)).length() + 1);
-    String text = "";
-    String chatId = "";
-
-    if (type != "/i") {
-        text = message.substring(2);
-    } else {
-        text = message.substring(2, 7);
-        chatId = message.substring(8);
-    }
+    String text = message.substring(2);
 
 #ifdef DEBUG
     Serial.println("RECEIVED");
     Serial.println(type);
     Serial.println(text);
-    Serial.println(chatId);
 #endif
 
     Command command;
@@ -68,13 +58,10 @@ Command SerialCommunication::receive() {
         command.isValid = true;
         command.commandType = type.charAt(1);
         command.commandText = text;
-        command.chatId = chatId;
     }
     else {
         command.isValid = false;
     }
-
-    // this->flush();
 
     return command;
 }
