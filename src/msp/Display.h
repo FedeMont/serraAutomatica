@@ -13,18 +13,18 @@
 class Display
 {
 public:
-    const uint16_t blackColour = 0b0000000000000000;
-    const uint16_t whiteColour = 0b1111111111111111;
-    const uint16_t redColour = 0b1111100000000000;
-    const uint16_t greenColour = 0b0000011111100000;
-    const uint16_t blueColour = 0b0000000000011111;
-    const uint16_t yellowColour = 0b1111111111100000;
-    const uint16_t cyanColour = 0b0000011111111111;
-    const uint16_t orangeColour = 0b1111101111100000;
-    const uint16_t magentaColour = 0b1111100000001111;
-    const uint16_t violetColour = 0b1111100000011111;
-    const uint16_t grayColour = 0b0111101111101111;
-    const uint16_t darkGrayColour = 0b0011100111100111;
+    uint16_t blackColour;
+    uint16_t whiteColour;
+    uint16_t redColour;
+    uint16_t greenColour;
+    uint16_t blueColour;
+    uint16_t yellowColour;
+    uint16_t cyanColour;
+    uint16_t orangeColour;
+    uint16_t magentaColour;
+    uint16_t violetColour;
+    uint16_t grayColour;
+    uint16_t darkGrayColour;
 
     Display();
 
@@ -43,11 +43,11 @@ public:
     int *getScreenSize();
 
 private:
-    DayCycle previousDayCycle = DayCycle::NONSET;
+    DayCycle previousDayCycle;
     Screen_HX8353E myScreen;
-    bool wateringFlag = true;
+    bool wateringFlag;
 
-    Action previousSelectedAction = Action::NONE;
+    Action previousSelectedAction;
 
     long timer_start;
 };

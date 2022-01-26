@@ -13,7 +13,7 @@ public:
     Navigator();
 
     void begin();
-    Action getAction();
+    enum Action getAction();
     void lightOn();
     void lightOff();
     void fanOn();

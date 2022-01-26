@@ -6,7 +6,7 @@ MyClock::MyClock()
     this->selectedDigit = 0;
     this->digits[4] = {0};
     this->isTimeSaved = false;
-    this->dayCycle = DayCycle::NONSET;
+    this->dayCycle = DayCycle_NONSET;
     this->time = 0;
 }
 
@@ -14,7 +14,7 @@ void MyClock::chooseTime(Action action)
 {
     switch (action)
     {
-    case Action::UP:
+    case Action_UP:
         int module;
         switch (this->selectedDigit)
         {
@@ -43,7 +43,7 @@ void MyClock::chooseTime(Action action)
         this->digits[this->selectedDigit] = (this->digits[this->selectedDigit] + 1) % module;
 
         break;
-    case Action::DOWN:
+    case Action_DOWN:
         if (this->digits[this->selectedDigit] > 0)
         {
             this->digits[this->selectedDigit]--;
@@ -76,10 +76,10 @@ void MyClock::chooseTime(Action action)
         }
 
         break;
-    case Action::RIGHT:
+    case Action_RIGHT:
         this->selectedDigit = (this->selectedDigit + 1) % 4;
         break;
-    case Action::LEFT:
+    case Action_LEFT:
         if (this->selectedDigit > 0)
             this->selectedDigit--;
         else
@@ -118,15 +118,15 @@ void MyClock::saveTime(const String &fromattedTime) // hh:mm
 
 void MyClock::clock(bool isMinutePassed)
 {
-    if (this->dayCycle == DayCycle::NONSET)
+    if (this->dayCycle == DayCycle_NONSET)
     {
         if (this->time >= (7 * 60 + 30) && this->time <= (18 * 60 + 30))
         {
-            this->dayCycle = DayCycle::DAY;
+            this->dayCycle = DayCycle_DAY;
         }
         else
         {
-            this->dayCycle = DayCycle::NIGHT;
+            this->dayCycle = DayCycle_NIGHT;
         }
     }
 
@@ -143,11 +143,11 @@ void MyClock::clock(bool isMinutePassed)
 
         if (this->time >= (7 * 60 + 30) && this->time <= (18 * 60 + 30))
         {
-            this->dayCycle = DayCycle::DAY;
+            this->dayCycle = DayCycle_DAY;
         }
         else
         {
-            this->dayCycle = DayCycle::NIGHT;
+            this->dayCycle = DayCycle_NIGHT;
         }
 
 #ifdef DEBUG

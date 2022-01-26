@@ -7,7 +7,7 @@
 #include "Display.h"
 Display display;
 
-#include "navigator.h"
+#include "Navigator.h"
 Navigator navigator;
 
 #include "MyClock.h"
@@ -16,7 +16,7 @@ MyClock myClock;
 #include "Controller.h"
 Controller controller;
 
-#include "soilSensor.h"
+#include "SoilSensor.h"
 SoilSensor soilSensor;
 #include <Wire.h> // Needed by Energia for Tiva C LaunchPad
 

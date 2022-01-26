@@ -3,30 +3,30 @@
 
 #define DEBUG
 
-enum class Action
+enum Action
 {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-    SELECT,
-    BUP,
-    BDOWN,
-    NONE
+    Action_UP,
+    Action_DOWN,
+    Action_LEFT,
+    Action_RIGHT,
+    Action_SELECT,
+    Action_BUP,
+    Action_BDOWN,
+    Action_NONE
 };
 
-enum class State
+enum State
 {
-    MANUAL,
-    AUTOMATIC,
-    NONE
+    State_MANUAL,
+    State_AUTOMATIC,
+    State_NONE
 };
 
-enum class DayCycle
+enum DayCycle
 {
-    DAY,
-    NIGHT,
-    NONSET
+    DayCycle_DAY,
+    DayCycle_NIGHT,
+    DayCycle_NONSET
 };
 
 typedef struct {

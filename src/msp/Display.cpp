@@ -3,6 +3,24 @@
 
 Display::Display()
 {
+    this->blackColour = 0b0000000000000000;
+    this->whiteColour = 0b1111111111111111;
+    this->redColour = 0b1111100000000000;
+    this->greenColour = 0b0000011111100000;
+    this->blueColour = 0b0000000000011111;
+    this->yellowColour = 0b1111111111100000;
+    this->cyanColour = 0b0000011111111111;
+    this->orangeColour = 0b1111101111100000;
+    this->magentaColour = 0b1111100000001111;
+    this->violetColour = 0b1111100000011111;
+    this->grayColour = 0b0111101111101111;
+    this->darkGrayColour = 0b0011100111100111;
+
+    this->previousDayCycle = DayCycle_NONSET;
+    this->previousSelectedAction = Action_NONE;
+
+    this->wateringFlag = true;
+
 }
 
 void Display::begin()
@@ -77,7 +95,7 @@ void Display::chooseState(State selectedState)
     String state, otherState;
     int stateIndex, otherStateIndex;
 
-    if (selectedState == State::MANUAL) {
+    if (selectedState == State_MANUAL) {
         state = "MANUAL";
         otherState = "AUTOMATIC";
         stateIndex = 0;
@@ -144,7 +162,7 @@ void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle, in
 {
     if (dayCycle != this->previousDayCycle)
     {
-        this->drawImage((dayCycle == DayCycle::DAY) ? sun : moon, this->myScreen.fontSizeX(), this->myScreen.fontSizeY());
+        this->drawImage((dayCycle == DayCycle_DAY) ? sun : moon, this->myScreen.fontSizeX(), this->myScreen.fontSizeY());
         this->previousDayCycle = dayCycle;
     }
 

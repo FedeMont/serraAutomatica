@@ -3,6 +3,14 @@
 
 Controller::Controller()
 {
+    this->state = State_NONE;
+    this->previousState = State_NONE;
+    this->previousSelectedAction = Action_NONE;
+
+    this->readDelay = 100;
+
+    this->isMinutePassed = true;
+    this->isWatering = false;
 }
 
 Controller::~Controller()
@@ -13,8 +21,8 @@ void Controller::sendState(String chatId) {
 
     String msgs[5] = {};
 
-    msgs[0] = "/iThe green house is in " + String((this->state == State::MANUAL)? "manual" :"automatic") + " mode.\n";
-    msgs[1] = "/iNow is " + String((this->myClock->dayCycle == DayCycle::DAY)? "day" : "night") + ".\n";
+    msgs[0] = "/iThe green house is in " + String((this->state == State_MANUAL)? "manual" :"automatic") + " mode.\n";
+    msgs[1] = "/iNow is " + String((this->myClock->dayCycle == DayCycle_DAY)? "day" : "night") + ".\n";
     msgs[2] = "/iThe time is " + this->myClock->getTimeAsString() + ".\n";
     msgs[3] = "/iThe plant is " + String((this->isWatering == true)? "being watered" : "not being watered") + ".\n";
     msgs[4] = "/iSoil sensor is at " + String(this->soilSensor->readSensor()) + "%.\n";
@@ -43,8 +51,8 @@ void Controller::sendState(String chatId) {
 #endif
     
 
-    // this->mySerial.send(String("/iThe green house is in " + String((this->state == State::MANUAL)? "manual" :"automatic") + " mode."));
-    // this->mySerial.send(String("/iNow is " + String((this->myClock->dayCycle == DayCycle::DAY)? "day" : "night") + "."));
+    // this->mySerial.send(String("/iThe green house is in " + String((this->state == State_MANUAL)? "manual" :"automatic") + " mode."));
+    // this->mySerial.send(String("/iNow is " + String((this->myClock->dayCycle == DayCycle_DAY)? "day" : "night") + "."));
     // this->mySerial.send(String("/iThe time is " + this->myClock->getTimeAsString() + "."));
     // this->mySerial.send(String("/iThe plant is " + String((this->isWatering == true)? "being watered" : "not being watered") + "."));
     // this->mySerial.send(String("/iSoil sensor is at " + String(this->soilSensor->readSensor()) + "%."));
@@ -79,34 +87,34 @@ void Controller::chooseState(Action action)
         Serial.print("State: ");
         Serial.println(int(this->state));
 #endif
-    case Action::NONE:
+    case Action_NONE:
         switch (this->previousSelectedAction)
         {
-        case Action::NONE:
-            this->previousSelectedAction = Action::UP;
-            this->previousState = State::MANUAL;
+        case Action_NONE:
+            this->previousSelectedAction = Action_UP;
+            this->previousState = State_MANUAL;
             this->display->chooseState(this->previousState);;
             break;
         default:
             break;
         }
         break;
-    case Action::UP:
-        this->previousSelectedAction = Action::UP;
-        this->previousState = State::MANUAL;
+    case Action_UP:
+        this->previousSelectedAction = Action_UP;
+        this->previousState = State_MANUAL;
         this->display->chooseState(this->previousState);
         break;
-    case Action::DOWN:
-        this->previousSelectedAction = Action::DOWN;
-        this->previousState = State::AUTOMATIC;
+    case Action_DOWN:
+        this->previousSelectedAction = Action_DOWN;
+        this->previousState = State_AUTOMATIC;
         this->display->chooseState(this->previousState);
         break;
-    case Action::SELECT:
-        if (this->previousSelectedAction != Action::NONE)
+    case Action_SELECT:
+        if (this->previousSelectedAction != Action_NONE)
         {
             this->state = this->previousState;
             this->display->clear();
-            if (this->state == State::AUTOMATIC)
+            if (this->state == State_AUTOMATIC)
                 this->mySerial.send("/d");
                 this->readFromESP();
         }
@@ -149,7 +157,7 @@ void Controller::readFromESP()
                 Serial.println(command.commandText);
 #endif
                 this->myClock->saveTime(command.commandText);
-                this->changeState(State::AUTOMATIC);
+                this->changeState(State_AUTOMATIC);
 
             } break;
             case 'c': { // command
@@ -161,7 +169,7 @@ void Controller::readFromESP()
                     this->mySerial.send("/d");
 
                 } else if (command.commandText == "manual") {
-                    this->changeState(State::MANUAL);
+                    this->changeState(State_MANUAL);
 
                 }
 
@@ -207,7 +215,7 @@ void Controller::home()
     this->isMinutePassed = this->myClock->isMinutePassed(); // check if minute is really passed
     this->myClock->clock(this->isMinutePassed);
 
-    if (this->myClock->dayCycle == DayCycle::DAY)
+    if (this->myClock->dayCycle == DayCycle_DAY)
     {
         this->navigator->lightOn();
     }
@@ -221,7 +229,7 @@ void Controller::manualStart(Action action)
 {
     if (!this->myClock->isTimeSaved)
     {
-        if (action == Action::SELECT)
+        if (action == Action_SELECT)
         {
             this->myClock->saveTime();
             this->display->clear();
@@ -248,13 +256,13 @@ void Controller::start()
 
     switch (this->state)
     {
-    case State::NONE:
+    case State_NONE:
         this->chooseState(action);
         break;
-    case State::MANUAL:
+    case State_MANUAL:
         this->manualStart(action);
         break;
-    case State::AUTOMATIC:
+    case State_AUTOMATIC:
         this->automaticStart();
         break;
     default:

@@ -1,5 +1,5 @@
 // #include "Energia.h"
-#include "navigator.h"
+#include "Navigator.h"
 
 Navigator::Navigator()
 {
@@ -23,9 +23,9 @@ void Navigator::begin()
     this->timer_start = millis();
 }
 
-Action Navigator::getAction()
+enum Action Navigator::getAction()
 {
-    Action action_t = Action::NONE;
+    Action action_t = Action_NONE;
 
     if (millis() - timer_start > 300)
     {

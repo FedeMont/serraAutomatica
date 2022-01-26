@@ -9,10 +9,10 @@ class SoilSensor
 private:
     uint8_t pin;
 
-    int maxValue = 1023;
-    int minValue = 0;
-    int dryThreshold = (3*(maxValue-minValue)/5);
-    int wetThreshold = (2*(maxValue-minValue)/5);
+    int maxValue;
+    int minValue;
+    int dryThreshold;
+    int wetThreshold;
 
     bool lastShouldWatering;
 
