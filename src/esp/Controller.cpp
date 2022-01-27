@@ -25,62 +25,71 @@ void Controller::begin(BotHandler *botHandler, WiFiConfiguration *wiFi, NTPClien
     this->wifiConfiguration = wiFi;
     this->timeAndDateClient = timeClient;
 
-    this->botHandler->begin(&this->mySerial);
+    this->botHandler->begin(&this->mySerial, &this->state);
     this->wifiConfiguration->connect();
     this->timeAndDateClient->begin();
 
     this->mySerial.send("/sSTART2");
+    this->botHandler->sendMessage("658340861", "I'm ready uaglio");
 }
 
-void Controller::readFromMSP() {
-    if (this->mySerial.isAvailable()) // && (millis() > this->lastTimeRead + this->readDelay))
-    {
-        Command command = this->mySerial.receive();
-        if (command.isValid) {
-            switch (command.commandType)
-            {
-            case 's': { // start
+void Controller::readFromMSP(const String &msg) {
+    Command command = this->mySerial.commandParser(msg);
+    if (command.isValid) {
+        switch (command.commandType)
+        {
+        case 's': { // start
 #ifdef DEBUG
-                Serial.print("start: ");
-                Serial.println(command.commandText);
+            Serial.print("start: ");
+            Serial.println(command.commandText);
 #endif
-            } break;
-            case 'd': { // date
+        } break;
+        case 'd': { // date
 #ifdef DEBUG
-                Serial.print("date: ");
-                Serial.print(command.commandText + ", ");
-                Serial.println(this->getTime());
+            Serial.print("date: ");
+            Serial.print(command.commandText + ", ");
+            Serial.println(this->getTime());
 #endif
-                this->mySerial.send(String("/d" + this->getTime()));
-            } break;
-            case 'c': { // command
+            this->mySerial.send(String("/d" + this->getTime()));
+        } break;
+        case 'c': { // command
 #ifdef DEBUG
-                Serial.print("command: ");
-                Serial.println(command.commandText);
+            Serial.print("command: ");
+            Serial.println(command.commandText);
 #endif
-            } break;
-            case 'i': { // info
+        } break;
+        case 'm':{
 #ifdef DEBUG
-                Serial.print("info: ");
-                Serial.println(command.commandText);
+            Serial.print("command: ");
+            Serial.println(command.commandText);
 #endif
-                this->infoMessage += command.commandText + "\n";
-            } break;
-            case 'e': { //end
-#ifdef DEBUG
-                Serial.print("end: ");
-                Serial.println(command.commandText);
-                Serial.println(command.chatId);
-#endif
-                this->botHandler->sendMessage(command.chatId, this->infoMessage);
-                this->infoMessage = "";
-            } break;
-
-            default:
-                break;
+            if(command.commandText == "automatic"){
+                this->state = State_AUTOMATIC;
+            }else{
+                this->state = State_MANUAL;
             }
+
+        }break;
+        case 'i': { // info
+#ifdef DEBUG
+            Serial.print("info: ");
+            Serial.println(command.commandText);
+            Serial.println(this->infoMessage);
+#endif
+            this->infoMessage += command.commandText;
+        } break;
+        case 'e': { //end
+#ifdef DEBUG
+            Serial.print("end: ");
+            Serial.println(command.commandText);
+#endif
+            this->botHandler->sendMessage(command.commandText, this->infoMessage);
+            this->infoMessage = "";
+        } break;
+
+        default:
+            break;
         }
-        this->lastTimeRead = millis();
     }
 }
 

@@ -14,8 +14,14 @@
 class BotHandler
 {
 private:
+    String defaultBotCommands;
+    String manualBotCommands;
+
     String permittedChatIds[2];
+
     SerialCommunication *mySerial;
+    State *mspState;
+
     const String BOT_TOKEN = "5054228318:AAEY4d4M9VQMujE3A-zhw_ao8a5ieW746nU"; 
     String chat_ids[2] = {"9202122", "658340861"};
 public:
@@ -32,7 +38,7 @@ public:
     void sendMessage(String, String);
     telegramMessage getMessage(int);
 
-    void begin(SerialCommunication *);
+    void begin(SerialCommunication *, State *);
     void startMessage(String, String);
     void setAutomatic(String);
     void setManual(String);

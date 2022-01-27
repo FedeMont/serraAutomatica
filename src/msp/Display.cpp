@@ -158,6 +158,13 @@ void Display::chooseTime(int selectedDigit, int digits[])
     this->write(this->myScreen.fontSizeX(), (this->myScreen.screenSizeY() - 2 * this->myScreen.fontSizeY()), "SEL to confirm", greenColour);
 }
 
+void Display::resetHomeScreenFlags() {
+    this->previousDayCycle = DayCycle_NONSET;
+    this->previousSelectedAction = Action_NONE;
+
+    this->wateringFlag = true;
+}
+
 void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle, int humidity, bool shouldWatering)
 {
     if (dayCycle != this->previousDayCycle)

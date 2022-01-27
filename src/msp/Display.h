@@ -37,8 +37,9 @@ public:
     void drawImage(tImage, uint16_t, uint16_t);
     void chooseState(State);
     void chooseTime(int, int[]);
+    void resetHomeScreenFlags();
     void homeScreen(String, bool, DayCycle, int, bool);
-
+    
     int calculateTextSize(String);
     int *getScreenSize();
 

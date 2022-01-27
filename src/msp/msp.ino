@@ -38,10 +38,30 @@ void setup()
 void loop()
 {
 	controller.start();
-	if (hasReceivedMessage) {
-		controller.readFromESP();
+	
+	if (hasReceivedMessage)
+	{
+		controller.readFromESP(Serial1.readStringUntil('@'));
 		hasReceivedMessage = false;
+		// char c = char(Serial1.read());
+        // Serial.print(c + " ");
+
+        // if (c == '@') {
+		// 	completeMessage.trim();
+        //     Serial.println(" complete: " + completeMessage);
+		// 	controller.readFromESP(completeMessage);
+
+		// 	hasReceivedMessage = false;
+		// 	completeMessage = "";
+        // } else {
+        //     completeMessage += c;
+        // }
 	}
+	
+	// if (hasReceivedMessage) {
+	// 	controller.readFromESP();
+	// 	hasReceivedMessage = false;
+	// }
 }
 
 void uartInterrupt()

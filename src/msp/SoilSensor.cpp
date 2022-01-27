@@ -18,9 +18,9 @@ SoilSensor::~SoilSensor()
 int SoilSensor::readSensor()
 {
     int value = analogRead(this->pin);
-#ifdef DEBUG
-    Serial.println(value);
-#endif
+// #ifdef DEBUG
+//     Serial.println(value);
+// #endif
     return value;
 }
 
@@ -31,9 +31,9 @@ bool SoilSensor::shouldWatering(int sensorValue)
     else if (sensorValue < this->wetThreshold)
         this->lastShouldWatering = false;
 
-#ifdef DEBUG
-    Serial.print("lastShouldWatering: ");
-    Serial.println(this->lastShouldWatering);
-#endif
+// #ifdef DEBUG
+//     Serial.print("lastShouldWatering: ");
+//     Serial.println(this->lastShouldWatering);
+// #endif
     return this->lastShouldWatering;
 }

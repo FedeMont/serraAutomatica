@@ -44,7 +44,7 @@ void loop()
 {
 	controller.start();
 	if (hasReceivedMessage) {
-		controller.readFromMSP();
+		controller.readFromMSP(controller.mySerial.readStringUntil('@'));
 		hasReceivedMessage = false;
 	}
 
@@ -56,6 +56,8 @@ ICACHE_RAM_ATTR void uartInterrupt() {
 }
 
 void serialEvent1() {
-	uartInterrupt();
+	if (controller.mySerial.available() > 0) {
+		uartInterrupt();
+	}
 	// hasReceivedMessage = true;
 }

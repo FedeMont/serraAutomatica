@@ -14,7 +14,6 @@ class Controller
 private:
     BotHandler *botHandler;
     WiFiConfiguration *wifiConfiguration;
-    SerialCommunication mySerial;
     NTPClient *timeAndDateClient;
 
     unsigned long lastTimeRead;
@@ -22,16 +21,19 @@ private:
 
     String infoMessage = "";
 
+    State state = State_NONE;
+    
 public:
     Controller();
     ~Controller();
 
+    SerialCommunication mySerial;
     String getTime();
 
     void begin(BotHandler *, WiFiConfiguration *, NTPClient *);
     void start();
 
-    void readFromMSP();
+    void readFromMSP(const String&);
 };
 
 #endif

@@ -9,7 +9,13 @@ typedef struct {
     bool isValid;
     char commandType;
     String commandText;
-    String chatId;
 } Command;
+
+enum State
+{
+    State_MANUAL,
+    State_AUTOMATIC,
+    State_NONE
+};
 
 #endif

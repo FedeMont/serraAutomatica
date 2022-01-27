@@ -18,14 +18,15 @@ public:
     void begin(Display *, Navigator *, MyClock *, SoilSensor *);
     void start();
 
-    void readFromESP();
+    void readFromESP(const String&);
+
+    SerialCommunication mySerial;
 
 private:
     Display *display;
     Navigator *navigator;
     MyClock *myClock;
     SoilSensor *soilSensor;
-    SerialCommunication mySerial;
 
     Command lastCommandRecevied;
     State state;
@@ -33,9 +34,9 @@ private:
     Action previousSelectedAction;
 
     void sendState(String);
-
-    unsigned long lastTimeRead;
-    int readDelay;
+    void sendLightManual(String);
+    void sendWaterManual(String);
+    void sendFanManual(String);
 
     void chooseState(Action);
     void changeState(State);
@@ -45,8 +46,17 @@ private:
     void automaticStart();
 
     bool isMinutePassed; // true for first clock write
-    bool isWatering;
+    bool shouldWatering;
 
+    bool hasReceivedState;
+    bool hasReceivedLight;
+    bool hasReceivedWater;
+    bool hasReceivedFan;
+    bool hasSendDate;
+
+    bool lightManual;
+    bool waterManual;
+    bool fanManual;
 };
 
 #endif

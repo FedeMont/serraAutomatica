@@ -15,7 +15,7 @@ public:
     void begin(unsigned long);
 
     void send(const String &);
-    Command receive();
+    Command commandParser(const String &);
 
     String readFrom();
     void writeTo();

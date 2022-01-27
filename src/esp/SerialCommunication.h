@@ -18,10 +18,11 @@ public:
     void flush();
     void begin(uint32_t);
 
-    bool isAvailable();
+    int available();
+    String readStringUntil(const char &);
     
     void send(const String &);
-    Command receive();
+    Command commandParser(const String &);
 };
 
 #endif

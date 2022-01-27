@@ -89,16 +89,16 @@ void MyClock::chooseTime(Action action)
         break;
     }
 
-#ifdef DEBUG
-    Serial.print(this->digits[1]);
-    Serial.print(this->digits[0]);
-    Serial.print(":");
-    Serial.print(this->digits[2]);
-    Serial.print(this->digits[3]);
-    Serial.print(" sel: ");
-    Serial.println(this->selectedDigit);
-    Serial.println(this->time);
-#endif
+// #ifdef DEBUG
+//     Serial.print(this->digits[1]);
+//     Serial.print(this->digits[0]);
+//     Serial.print(":");
+//     Serial.print(this->digits[2]);
+//     Serial.print(this->digits[3]);
+//     Serial.print(" sel: ");
+//     Serial.println(this->selectedDigit);
+//     Serial.println(this->time);
+// #endif
 }
 
 void MyClock::saveTime()
@@ -113,7 +113,6 @@ void MyClock::saveTime(const String &fromattedTime) // hh:mm
     this->time = (fromattedTime.charAt(4) - '0') + ((fromattedTime.charAt(3) - '0') * 10) + ((fromattedTime.charAt(1) - '0') * 60) + ((fromattedTime.charAt(0) - '0') * 60 * 10);
     this->start_time = millis();
     this->isTimeSaved = true;
-
 }
 
 void MyClock::clock(bool isMinutePassed)
