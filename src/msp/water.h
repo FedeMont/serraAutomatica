@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 #include "Energia.h"
-#include "types.h"
+#include "Types.h"
 
 static const uint16_t image_data_water[625] = {
     // ∙∙∙∙∙∙∙∙∙∙∙∙▓▓▓▓▓▓∙∙∙∙∙∙∙

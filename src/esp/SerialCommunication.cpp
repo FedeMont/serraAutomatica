@@ -1,4 +1,4 @@
-#include "../include/SerialCommunication.h"
+#include "SerialCommunication.h"
 
 SerialCommunication::SerialCommunication(/* args */) : mySerial(13, 15) // d7 rx bianco, d8 tx marrone
 {

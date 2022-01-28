@@ -3,7 +3,7 @@
 // #include <UniversalTelegramBot.h> // Universal Telegram Bot Library written by Brian Lough: https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot
 
 #include "BotHandler.h"
-#include "Types.h"
+// #include "Types.h"
 
 BotHandler::BotHandler(WiFiClientSecure &client) : bot(this->BOT_TOKEN, client)
 {

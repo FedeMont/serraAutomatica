@@ -1,4 +1,4 @@
-#include "../include/SerialCommunication.h"
+#include "SerialCommunication.h"
 
 SerialCommunication::SerialCommunication(/* args */)
 {

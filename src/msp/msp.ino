@@ -13,7 +13,7 @@ Navigator navigator;
 #include "MyClock.h"
 MyClock myClock;
 
-#include "../include/Controller.h"
+#include "Controller.h"
 Controller controller;
 
 #include "SoilSensor.h"

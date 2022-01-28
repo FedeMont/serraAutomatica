@@ -8,11 +8,10 @@
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 3600, 60000); // https://randomnerdtutorials.com/esp32-ntp-client-date-time-arduino-ide/
 
-#include "../include/SerialCommunication.h"
 #include "BotHandler.h"
 #include "WiFiConfiguration.h"
-#include "../include/Types.h"
-#include "../include/Controller.h"
+#include "Types.h"
+#include "Controller.h"
 
 X509List cert(TELEGRAM_CERTIFICATE_ROOT);
 WiFiClientSecure client;

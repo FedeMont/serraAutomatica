@@ -8,7 +8,7 @@
 #include <SoftwareSerial.h>
 #endif
 
-#include "./Types.h"
+#include "Types.h"
 
 class SerialCommunication
 {

@@ -13,8 +13,10 @@
 #include "BotHandler.h"
 #include "WiFiConfiguration.h"
 #endif
-#include "./SerialCommunication.h"
-#include "./Types.h"
+#include "SerialCommunication.h"
+#include "Types.h"
+
+FUCKOFF
 
 class Controller
 {
@@ -49,6 +51,7 @@ private:
     State previousState;
     Action previousSelectedAction;
 
+    void wait();
     void sendEndMessage(const String &);
 
     void sendState(const String &);

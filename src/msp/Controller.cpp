@@ -1,7 +1,5 @@
-#include <Energia.h>
-#ifndef Energia_h
-#define Energia_h
-#include "../include/Controller.h"
+// #include <Energia.h>
+#include "Controller.h"
 
 Controller::Controller()
 {
@@ -66,6 +64,10 @@ void Controller::begin(Display *display, Navigator *navigator, MyClock *myClock,
     this->navigator->begin();
 }
 
+void Controller::wait() {
+    logn timer = millis();
+    while (millis() - timer < 1500);
+}
 
 void Controller::sendEndMessage(const String &chatId) {
     this->myserial.send("/e" + chatId);
@@ -74,12 +76,16 @@ void Controller::sendEndMessage(const String &chatId) {
 void Controller::sendState(String chatId) 
 {
     this->sendModeState();
+    this->wait();
 
     if (this->state == State_AUTOMATIC) 
     {
         this->sendDayCycleState();
+        this->wait();
         this->sendTimeState();
+        this->wait();
         this->sendSoilState();
+        this->wait();
         this->sendWateringState();
     }
     else 
@@ -87,24 +93,8 @@ void Controller::sendState(String chatId)
 
     }
 
+    this->wait();
     this->sendEndMessage(chatId);
-
-//     int i = 0;
-//     int last_timer = millis();
-//     while (i < 6) 
-//     {
-//         while (millis() - last_timer > 1500)
-//         {
-// #ifdef DEBUG
-//             Serial.print("entered loop: i: " + String(i) + ", msg: ");
-//             Serial.println(msgs[i]);
-// #endif
-//             this->mySerial.send(msgs[i]);
-
-//             last_timer = millis();
-//             i++;
-//         }
-    }
 }
 
 void Controller::sendModeState()
@@ -141,6 +131,7 @@ void Controller::sendSoilState()
 void Controller::sendLightManual(const String &chatId) 
 {
     this->mySerial.send("/iThe light is " + String((this->lightManual)? "ON" : "OFF") + ".\n");
+    this->wait();
     this->sendEndMessage(chatId);
 
     this->hasReceivedLight = false;
@@ -149,6 +140,7 @@ void Controller::sendLightManual(const String &chatId)
 void Controller::sendWaterManual(const String &chatId)
 {
     this->mySerial.send("/iThe plant is " + String((this->waterManual)? "being watered" : "not being watered") + ".\n");
+    this->wait();
     this->sendEndMessage(chatId);
 
     this->hasReceivedWater = false;
@@ -157,6 +149,7 @@ void Controller::sendWaterManual(const String &chatId)
 void Controller::sendFanManual(const String &chatId)
 {
     this->mySerial.send("/iThe fan is " + String((this->fanManual)? "ON" : "OFF") + ".\n");
+    this->wait();
     this->sendEndMessage(chatId);
 
     this->hasReceivedFan = false;
@@ -362,14 +355,14 @@ void Controller::readFromESP(const String &msg)
     }
 }
 
-void Controller::home()
+void Controller::automaticStart()
 {
     int sensorValue = this->soilSensor->readSensor();
     this->shouldWatering = this->soilSensor->shouldWatering(sensorValue);
 
-    this->display->homeScreen(this->myClock->getTimeAsString(), this->isMinutePassed, this->myClock->dayCycle, sensorValue, shouldWatering); // first write
+    this->display->homeScreen(this->myClock->getTimeAsString(), this->isMinutePassed, this->myClock->dayCycle, sensorValue, this->shouldWatering); // first write
 
-    if (shouldWatering)
+    if (this->shouldWatering)
     {
         this->navigator->waterOn();
     }
@@ -389,6 +382,8 @@ void Controller::home()
     {
         this->navigator->lightOff();
     }
+
+
 }
 
 void Controller::manualStart(Action action)
@@ -407,14 +402,17 @@ void Controller::manualStart(Action action)
     }
     else
     {
-        this->home();
+        int sensorValue = this->soilSensor->readSensor();
+        this->display->homeScreen(this->myClock->getTimeAsString(), this->isMinutePassed, this->myClock->dayCycle, sensorValue, shouldWatering); // first write
+        this->isMinutePassed = this->myClock->isMinutePassed(); // check if minute is really passed
+        this->myClock->clock(this->isMinutePassed);
     }
 }
 
-void Controller::automaticStart()
-{
-    this->home();
-}
+// void Controller::automaticStart()
+// {
+//     this->home();
+// }
 
 void Controller::start()
 {

@@ -8,7 +8,7 @@
 #include "night.h"
 #include "water.h"
 
-#include "types.h"
+#include "Types.h"
 
 class Display
 {

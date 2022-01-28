@@ -2,7 +2,7 @@
 #define __MYCLOCK_H__
 
 #include "Energia.h"
-#include "types.h"
+#include "Types.h"
 
 class MyClock
 {
