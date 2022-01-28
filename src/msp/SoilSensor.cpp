@@ -1,4 +1,4 @@
-// #include "Energia.h"
+#include <Energia.h>
 #include "SoilSensor.h"
 
 SoilSensor::SoilSensor(/* args */)

@@ -120,5 +120,5 @@ void Controller::readFromMSP(const String &msg) {
 
 void Controller::start()
 {
-    this->botHandler->start();
+    this->botHandler->start(!this->hasConnectionTimedOut && this->isConnectedToMSP);
 }

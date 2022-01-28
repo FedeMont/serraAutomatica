@@ -1,3 +1,4 @@
+#include <Energia.h>
 #include "SerialCommunication.h"
 
 SerialCommunication::SerialCommunication(/* args */)

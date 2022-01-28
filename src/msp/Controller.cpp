@@ -1,4 +1,4 @@
-// #include <Energia.h>
+#include <Energia.h>
 #include "Controller.h"
 
 Controller::Controller()
@@ -65,15 +65,15 @@ void Controller::begin(Display *display, Navigator *navigator, MyClock *myClock,
 }
 
 void Controller::wait() {
-    logn timer = millis();
+    long timer = millis();
     while (millis() - timer < 1500);
 }
 
 void Controller::sendEndMessage(const String &chatId) {
-    this->myserial.send("/e" + chatId);
+    this->mySerial.send("/e" + chatId);
 }
 
-void Controller::sendState(String chatId) 
+void Controller::sendState(const String &chatId) 
 {
     this->sendModeState();
     this->wait();
@@ -413,6 +413,11 @@ void Controller::manualStart(Action action)
 // {
 //     this->home();
 // }
+
+void Controller::connectionTimeOut(){
+    this->hasConnectionTimedOut = true;
+    this->display->clear();
+}
 
 void Controller::start()
 {

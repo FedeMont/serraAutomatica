@@ -45,9 +45,9 @@ public:
     void state(String);
     void help(String);
 
-    void handleNewMessages(int);
+    void handleNewMessages(int, bool);
 
-    void start();
+    void start(bool);
 };
 
 #endif

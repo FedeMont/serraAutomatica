@@ -136,7 +136,7 @@ void BotHandler::help(String chatId)
     this->sendMessage(chatId, help);
 }
 
-void BotHandler::handleNewMessages(int newMessages)
+void BotHandler::handleNewMessages(int newMessages, bool isConnected)
 {
     for (int i = 0; i < newMessages; i++)
     {
@@ -152,26 +152,11 @@ void BotHandler::handleNewMessages(int newMessages)
             continue;
         }
 
-        // if (*this->mspState == State_MANUAL) {
-        //     if (text == "/changetime")
-        //         this->sendMessage(chatId, "Set time");
-        //         // get time from user
-        //     if (text == "/togglelight") {
-        //         this->mySerial->send("/ctogglelight");
-        //         this->mySerial->send(String("/i" + chatId));
-        //     }
-        //     if (text == "/togglewater") {
-        //         this->mySerial->send("/ctogglewater");
-        //         this->mySerial->send(String("/i" + chatId));
-        //     }
-        //     if (text == "/togglefan") {
-        //         this->mySerial->send("/ctogglefan");
-        //         this->mySerial->send(String("/i" + chatId));
-        //     }
-        // }
-        // } else {
-        //     this->sendMessage(chatId, String("You can set the parameters only in manual mode."));
-        // }
+        if (!isConnected) {
+            this->sendMessage(chatId, "Cannot communicate with the green house.");
+            continue;
+        }
+
 #ifdef DEBUG
             Serial.println(text);
 #endif
@@ -241,7 +226,7 @@ void BotHandler::handleNewMessages(int newMessages)
     }
 }
 
-void BotHandler::start() {
+void BotHandler::start(bool isESPConnectedToMSP) {
     if (millis() > this->lastTimeBotRan + this->botRequestDelay)
     {
         int numNewMessages = this->getUpdates();
@@ -251,7 +236,7 @@ void BotHandler::start() {
 #ifdef DEBUG
             Serial.println("got response");
 #endif
-            this->handleNewMessages(numNewMessages);
+            this->handleNewMessages(numNewMessages, isESPConnectedToMSP);
             numNewMessages = this->getUpdates();
         }
 

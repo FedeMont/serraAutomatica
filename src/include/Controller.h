@@ -16,8 +16,6 @@
 #include "SerialCommunication.h"
 #include "Types.h"
 
-FUCKOFF
-
 class Controller
 {
 public:
@@ -34,12 +32,13 @@ public:
 #endif
     void setDefaultValues();
     void start();
+    void connectionTimeOut();
 
     bool hasConnectionTimedOut;
+    bool getConnectionState();
     SerialCommunication mySerial;
 private:
     void threeWayHandShake(const String &);
-    bool getConnectionState();
 
 #ifdef Energia_h
     Display *display;
