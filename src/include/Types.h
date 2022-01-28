@@ -1,5 +1,5 @@
-#ifndef __ACTION_H__
-#define __ACTION_H__
+#ifndef __TYPES_H__
+#define __TYPES_H__
 
 #define DEBUG
 

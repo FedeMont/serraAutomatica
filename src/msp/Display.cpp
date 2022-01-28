@@ -20,7 +20,6 @@ Display::Display()
     this->previousSelectedAction = Action_NONE;
 
     this->wateringFlag = true;
-
 }
 
 void Display::begin()

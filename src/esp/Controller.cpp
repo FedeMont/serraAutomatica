@@ -1,18 +1,36 @@
-#include "Controller.h"
-// #include <SoftwareSerial.h>
+#include <Arduino.h>
+#include "../include/Controller.h"
 
 Controller::Controller()
 {
+    this->setDefaultValues();
 }
 
 Controller::~Controller()
 {
 }
 
-String Controller::getTime()
-{
-    this->timeAndDateClient->update();
-    return this->timeAndDateClient->getFormattedTime().substring(0, 5);
+void Controller::setDefaultValues() {
+    this->hasConnectionTimedOut = false;
+    this->isConnectedToMSP = false;
+
+    this->infoMessage = "";
+    this->state = State_NONE;
+}
+
+void Controller::threeWayHandShake(const String &text) {
+    if (text == "START2")
+    {
+        this->isConnectedToMSP = true;
+#ifdef DEBUG
+    Serial.println("Connected to MSP");
+#endif
+        this->mySerial.send("/sSTARTACK");
+    }
+}
+
+bool Controller::getConnectionState() {
+    return this->isConnectedToMSP;
 }
 
 void Controller::begin(BotHandler *botHandler, WiFiConfiguration *wiFi, NTPClient *timeClient)
@@ -29,8 +47,13 @@ void Controller::begin(BotHandler *botHandler, WiFiConfiguration *wiFi, NTPClien
     this->wifiConfiguration->connect();
     this->timeAndDateClient->begin();
 
-    this->mySerial.send("/sSTART2");
-    this->botHandler->sendMessage("658340861", "I'm ready uaglio");
+    this->mySerial.send("/sSTART");
+}
+
+String Controller::getTime()
+{
+    this->timeAndDateClient->update();
+    return this->timeAndDateClient->getFormattedTime().substring(0, 5);
 }
 
 void Controller::readFromMSP(const String &msg) {
@@ -43,6 +66,8 @@ void Controller::readFromMSP(const String &msg) {
             Serial.print("start: ");
             Serial.println(command.commandText);
 #endif
+            this->threeWayHandShake(command.commandText);
+            
         } break;
         case 'd': { // date
 #ifdef DEBUG

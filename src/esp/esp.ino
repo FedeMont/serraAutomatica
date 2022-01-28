@@ -8,11 +8,11 @@
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 3600, 60000); // https://randomnerdtutorials.com/esp32-ntp-client-date-time-arduino-ide/
 
-#include "SerialCommunication.h"
+#include "../include/SerialCommunication.h"
 #include "BotHandler.h"
 #include "WiFiConfiguration.h"
-#include "Types.h"
-#include "Controller.h"
+#include "../include/Types.h"
+#include "../include/Controller.h"
 
 X509List cert(TELEGRAM_CERTIFICATE_ROOT);
 WiFiClientSecure client;
@@ -23,12 +23,12 @@ WiFiClientSecure client;
 const char *ssid = "TIM-19861131";
 const char *password = "BussolaGay";
 
-// SerialCommunication mySerial;
 BotHandler botHandler = BotHandler(client);
 WiFiConfiguration wifi(ssid, password);
 Controller controller;
 
 volatile bool hasReceivedMessage = false;
+long connection_timeout_timer = millis();
 
 void setup()
 {
@@ -48,6 +48,13 @@ void loop()
 		hasReceivedMessage = false;
 	}
 
+	if (!controller.getConnectionState() && millis() - connection_timeout_timer() > 120000) { // 2 minutes
+		controller.hasConnectionTimedOut = true;
+#ifdef DEBUG
+    	Serial.println("Connection TimedOut");
+#endif
+	}
+
 	serialEvent1();
 }
 
@@ -59,5 +66,4 @@ void serialEvent1() {
 	if (controller.mySerial.available() > 0) {
 		uartInterrupt();
 	}
-	// hasReceivedMessage = true;
 }
