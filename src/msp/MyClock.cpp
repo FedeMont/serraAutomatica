@@ -111,6 +111,8 @@ void MyClock::saveTime()
 void MyClock::saveTime(const String &fromattedTime) // hh:mm
 {
     this->time = (fromattedTime.charAt(4) - '0') + ((fromattedTime.charAt(3) - '0') * 10) + ((fromattedTime.charAt(1) - '0') * 60) + ((fromattedTime.charAt(0) - '0') * 60 * 10);
+    this->time--;
+    this->clock(true);
     this->start_time = millis();
     this->isTimeSaved = true;
 }

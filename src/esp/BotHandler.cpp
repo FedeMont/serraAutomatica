@@ -54,17 +54,17 @@ void BotHandler::begin(SerialCommunication *softwareSerial, State *state)
     this->mySerial = softwareSerial;
     this->mspState = state;
 
-    this->defaultBotCommands = (
-        "[" +
-        String("{\"command\":\"/start\", \"description\":\"Start bot\"},") +
-        String("{\"command\":\"/setautomatic\",\"description\":\"Set mode to automatic\"},") +
-        String("{\"command\":\"/setmanual\",\"description\":\"Set mode to manual\"},") +
-        String("{\"command\":\"/state\",\"description\":\"Request current state\"},") +
-        String("{\"command\":\"/help\",\"description\":\"Get help\"}") +
-        "]"
-    );
+    // this->defaultBotCommands = (
+    //     "[" +
+    //     String("{\"command\":\"/start\", \"description\":\"Start bot\"},") +
+    //     String("{\"command\":\"/setautomatic\",\"description\":\"Set mode to automatic\"},") +
+    //     String("{\"command\":\"/setmanual\",\"description\":\"Set mode to manual\"},") +
+    //     String("{\"command\":\"/state\",\"description\":\"Request current state\"},") +
+    //     String("{\"command\":\"/help\",\"description\":\"Get help\"}") +
+    //     "]"
+    // );
 
-    this->manualBotCommands = (
+    this->botCommands = (
         "[" +
         String("{\"command\":\"/start\", \"description\":\"Start bot\"},") +
         String("{\"command\":\"/setautomatic\",\"description\":\"Set mode to automatic\"},") +
@@ -72,7 +72,7 @@ void BotHandler::begin(SerialCommunication *softwareSerial, State *state)
         
         String("{\"command\":\"/changetime\",\"description\":\"Manual - Change time\"},") +
         String("{\"command\":\"/togglelight\",\"description\":\"Manual - Turn on and off light\"},") +
-        String("{\"command\":\"/togglewater\",\"description\":\"Manual - Turn on and off water\"},") +
+        String("{\"command\":\"/togglewater\",\"description\":\"Manual - Open and close water\"},") +
         String("{\"command\":\"/togglefan\",\"description\":\"Manual - Turn on and off fan\"},") +
         
         String("{\"command\":\"/state\",\"description\":\"Request current state\"},") +
@@ -81,12 +81,24 @@ void BotHandler::begin(SerialCommunication *softwareSerial, State *state)
     );
 }
 
+void BotHandler::setCommands(const String &commands) {
+    this->bot.setMyCommands(commands);
+}
+
+void BotHandler::setCommands() {
+    this->bot.setMyCommands(this->botCommands);
+}
+
 void BotHandler::startMessage(String chatId, String fromName)
 {
     String welcome = "Welcome, " + fromName + ".\n";
     welcome += "Use the following commands to control your greenhouse.\n\n";
     welcome += "/setautomatic to set mode to automatic\n";
     welcome += "/setmanual to set mode to manual\n";
+    welcome += "/changetime to change time (only manual)\n";
+    welcome += "/togglelight to turn on/off the light (only manual)\n";
+    welcome += "/togglewater to turn on/off the water pump (only manual)\n";
+    welcome += "/togglefan to turn on/off the fan (only manual)\n";
     welcome += "/state to request current mode state\n";
     welcome += "/help to get the command list\n";
 
@@ -98,10 +110,10 @@ void BotHandler::setAutomatic(String chatId)
     this->mySerial->send("/cautomatic");
     this->sendMessage(chatId, "Mode set to automatic.");
 
-#ifdef DEBUG
-    Serial.println(this->defaultBotCommands);
-#endif
-    this->bot.setMyCommands(this->defaultBotCommands);
+// #ifdef DEBUG
+//     Serial.println(this->defaultBotCommands);
+// #endif
+    // this->bot.setMyCommands(this->defaultBotCommands);
 }
 
 void BotHandler::setManual(String chatId)
@@ -109,17 +121,18 @@ void BotHandler::setManual(String chatId)
     this->mySerial->send("/cmanual");
     this->sendMessage(chatId, "Mode set to manual.");
     this->sendMessage(chatId, "Set time");
+    this->setTime = true;
 
-#ifdef DEBUG
-    Serial.println(this->manualBotCommands);
-#endif
-this->bot.setMyCommands(this->manualBotCommands);
+// #ifdef DEBUG
+//     Serial.println(this->manualBotCommands);
+// #endif
+    // this->bot.setMyCommands(this->manualBotCommands);
 }
 
 void BotHandler::state(String chatId)
 {
     this->mySerial->send("/cstate");
-    this->mySerial->send(String("/i" + chatId));
+    this->mySerial->send("/i" + chatId);
 
     this->sendMessage(chatId, String("Gathering information... please wait."));
 }
@@ -129,7 +142,11 @@ void BotHandler::help(String chatId)
     String help = "Command list.\n";
     help += "Use the following commands to control your greenhouse.\n\n";
     help += "/setautomatic to set mode to automatic\n";
-    help += "/setmanual to set mode to manual\n";
+    help += "/setmanual to set mode to manual \n\n";
+    help += "/changetime to change time (only manual)\n";
+    help += "/togglelight to turn on/off the light (only manual)\n";
+    help += "/togglewater to turn on/off the water pump (only manual)\n";
+    help += "/togglefan to turn on/off the fan (only manual) \n\n";
     help += "/state to request current mode state\n";
     help += "/help to get the command list\n";
 
@@ -152,92 +169,77 @@ void BotHandler::handleNewMessages(int newMessages)
             continue;
         }
 
-        // if (*this->mspState == State_MANUAL) {
-        //     if (text == "/changetime")
-        //         this->sendMessage(chatId, "Set time");
-        //         // get time from user
-        //     if (text == "/togglelight") {
-        //         this->mySerial->send("/ctogglelight");
-        //         this->mySerial->send(String("/i" + chatId));
-        //     }
-        //     if (text == "/togglewater") {
-        //         this->mySerial->send("/ctogglewater");
-        //         this->mySerial->send(String("/i" + chatId));
-        //     }
-        //     if (text == "/togglefan") {
-        //         this->mySerial->send("/ctogglefan");
-        //         this->mySerial->send(String("/i" + chatId));
-        //     }
-        // }
-        // } else {
-        //     this->sendMessage(chatId, String("You can set the parameters only in manual mode."));
-        // }
 #ifdef DEBUG
             Serial.println(text);
 #endif
 
-        if (text == "/start")
+        if (text == "/start"){
             this->startMessage(chatId, fromName);
-        else if (text == "/setautomatic")
+        } else if (text == "/setautomatic"){
             this->setAutomatic(chatId);
-        else if (text == "/setmanual")
+        } else if (text == "/setmanual"){
             this->setManual(chatId);
-        else if (text == "/state")
+        } else if (text == "/state"){
             this->state(chatId);
-        else if (text == "/help")
+        } else if (text == "/help"){
             this->help(chatId);
-        else if (text == "/changetime")
+        } else if (text == "/changetime"){
             if (*this->mspState == State_MANUAL) {
+                this->setTime = true;
                 this->sendMessage(chatId, "Set time");
             } else {
                 this->sendMessage(chatId, "You can send this command only in manual mode.");
             }
-        else if (text == "/togglelight") {
+        } else if (text == "/togglelight") {
             if (*this->mspState == State_MANUAL) {
                 this->mySerial->send("/ctogglelight");
                 this->mySerial->send(String("/i" + chatId));
             } else {
                 this->sendMessage(chatId, "You can send this command only in manual mode.");
             }
-        }
-        else if (text == "/togglewater") {
+        } else if (text == "/togglewater") {
             if (*this->mspState == State_MANUAL) {
                 this->mySerial->send("/ctogglewater");
                 this->mySerial->send(String("/i" + chatId));
             } else {
                 this->sendMessage(chatId, "You can send this command only in manual mode.");
             }
-        }
-        else if (text == "/togglefan") {
+        } else if (text == "/togglefan") {
             if (*this->mspState == State_MANUAL) {
                 this->mySerial->send("/ctogglefan");
                 this->mySerial->send(String("/i" + chatId));
             } else {
                 this->sendMessage(chatId, "You can send this command only in manual mode.");
             }
-        }
-        else { // time
-            bool isCorrect = false;
-            isCorrect = (text.length() <= 5) && isdigit(text.charAt(0)) && isdigit(text.charAt(1)) && (text.charAt(2) == ':') && isdigit(text.charAt(3)) && isdigit(text.charAt(4));
+        } else { 
+            if(this->setTime){ // time
+                bool isCorrect = false;
+                isCorrect = (text.length() <= 5) && isdigit(text.charAt(0)) && isdigit(text.charAt(1)) && (text.charAt(2) == ':') && isdigit(text.charAt(3)) && isdigit(text.charAt(4));
 
-            if (isCorrect)
-            {
-                if ((text.charAt(0) - '0') <= 1) {
-                    isCorrect = isdigit(text.charAt(1)) && (text.charAt(1) - '0') <= 9;
-                } else if ((text.charAt(0) - '0') == 2) {
-                    isCorrect = isdigit(text.charAt(1)) && (text.charAt(1) - '0') <= 3;
-                } else {
-                    isCorrect = false;
+                if (isCorrect)
+                {
+                    if ((text.charAt(0) - '0') <= 1) {
+                        isCorrect = isdigit(text.charAt(1)) && (text.charAt(1) - '0') <= 9;
+                    } else if ((text.charAt(0) - '0') == 2) {
+                        isCorrect = isdigit(text.charAt(1)) && (text.charAt(1) - '0') <= 3;
+                    } else {
+                        isCorrect = false;
+                    }
+
+                    isCorrect = (isdigit(text.charAt(3)) && (text.charAt(3) - '0') <= 5) && (isdigit(text.charAt(4)) && (text.charAt(4) - '0') <= 9);
                 }
-
-                isCorrect = (isdigit(text.charAt(3)) && (text.charAt(3) - '0') <= 5) && (isdigit(text.charAt(4)) && (text.charAt(4) - '0') <= 9);
+                
+                if(isCorrect){
+                    this->mySerial->send(String("/d" + text));
+                }else{
+                    this->sendMessage(chatId, "Set time again, the correct format is hh:mm");
+                }
+                this->setTime = false;     
+            }else{
+                this->sendMessage(chatId, "Send a command");
             }
             
-            if(isCorrect)
-                this->mySerial->send(String("/d" + text));
-            else
-                this->sendMessage(chatId, "Set time again, the correct format is hh:mm");
-        }     
+        }
     }
 }
 

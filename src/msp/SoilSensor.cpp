@@ -7,8 +7,10 @@ SoilSensor::SoilSensor(/* args */)
 
     this->maxValue = 1023;
     this->minValue = 0;
-    this->dryThreshold = (3 * (this->maxValue - this->minValue) / 5);
-    this->wetThreshold = (2 * (this->maxValue - this->minValue) / 5);
+    this->dryThreshold = this->minValue + (3 * (this->maxValue - this->minValue) / 5);
+    this->wetThreshold = this->minValue + (2 * (this->maxValue - this->minValue) / 5);
+
+    this->lastShouldWatering = false;
 }
 
 SoilSensor::~SoilSensor()
@@ -36,4 +38,9 @@ bool SoilSensor::shouldWatering(int sensorValue)
 //     Serial.println(this->lastShouldWatering);
 // #endif
     return this->lastShouldWatering;
+}
+
+float SoilSensor::valueToPercentage(int value) {
+    float percentage = (100 * (float)value) / (float)(this->maxValue - this->minValue);
+    return 100.0 - percentage;
 }

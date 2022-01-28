@@ -18,6 +18,9 @@ Controller controller;
 
 #include "SoilSensor.h"
 SoilSensor soilSensor;
+
+#include "TemperatureSensor.h"
+TemperatureSensor temperatureSensor;
 #include <Wire.h> // Needed by Energia for Tiva C LaunchPad
 
 volatile bool hasReceivedMessage = false;
@@ -32,7 +35,7 @@ void setup()
 
 	// navigator.begin();
 
-	controller.begin(&display, &navigator, &myClock, &soilSensor);
+	controller.begin(&display, &navigator, &myClock, &soilSensor, &temperatureSensor);
 }
 
 void loop()
@@ -43,25 +46,7 @@ void loop()
 	{
 		controller.readFromESP(Serial1.readStringUntil('@'));
 		hasReceivedMessage = false;
-		// char c = char(Serial1.read());
-        // Serial.print(c + " ");
-
-        // if (c == '@') {
-		// 	completeMessage.trim();
-        //     Serial.println(" complete: " + completeMessage);
-		// 	controller.readFromESP(completeMessage);
-
-		// 	hasReceivedMessage = false;
-		// 	completeMessage = "";
-        // } else {
-        //     completeMessage += c;
-        // }
 	}
-	
-	// if (hasReceivedMessage) {
-	// 	controller.readFromESP();
-	// 	hasReceivedMessage = false;
-	// }
 }
 
 void uartInterrupt()

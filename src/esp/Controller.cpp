@@ -30,6 +30,7 @@ void Controller::begin(BotHandler *botHandler, WiFiConfiguration *wiFi, NTPClien
     this->timeAndDateClient->begin();
 
     this->mySerial.send("/sSTART2");
+    this->botHandler->setCommands();
     this->botHandler->sendMessage("658340861", "I'm ready uaglio");
 }
 

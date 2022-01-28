@@ -14,8 +14,8 @@
 class BotHandler
 {
 private:
-    String defaultBotCommands;
-    String manualBotCommands;
+    // String defaultBotCommands;
+    String botCommands;
 
     String permittedChatIds[2];
 
@@ -24,6 +24,8 @@ private:
 
     const String BOT_TOKEN = "5054228318:AAEY4d4M9VQMujE3A-zhw_ao8a5ieW746nU"; 
     String chat_ids[2] = {"9202122", "658340861"};
+
+    bool setTime = false;
 public:
     UniversalTelegramBot bot;
     BotHandler(WiFiClientSecure &);
@@ -32,6 +34,9 @@ public:
 
     unsigned long lastTimeBotRan;
     int botRequestDelay = 1000; // checks for new messages time
+
+    void setCommands();
+    void setCommands(const String &);
 
     int getUpdates();
     bool isIdPermitted(String);

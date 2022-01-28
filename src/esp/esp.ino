@@ -20,8 +20,8 @@ WiFiClientSecure client;
 // #define MYTZ "CET-1CEST,M3.5.0,M10.5.0/3" // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
 
 // Replace with your network credentials
-const char *ssid = "TIM-19861131";
-const char *password = "BussolaGay";
+const char *ssid = "Vodafone-MontagnaGuest";
+const char *password = "MontagnaWiFi";
 
 // SerialCommunication mySerial;
 BotHandler botHandler = BotHandler(client);

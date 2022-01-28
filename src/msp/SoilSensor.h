@@ -22,6 +22,7 @@ public:
 
     int readSensor();
     bool shouldWatering(int);
+    float valueToPercentage(int);
 };
 
 #endif
