@@ -2,7 +2,6 @@
 #define __BOTHANDLER_H__
 
 #include <Arduino.h>
-// #include <SoftwareSerial.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h> // Universal Telegram Bot Library written by Brian Lough: https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot
 
@@ -11,41 +10,54 @@
 
 // #define BOT_TOKEN "5054228318:AAEY4d4M9VQMujE3A-zhw_ao8a5ieW746nU"
 
+#define MAXCHATIDS 5
 class BotHandler
 {
 private:
-    String defaultBotCommands;
-    String manualBotCommands;
+    UniversalTelegramBot bot;
 
-    String permittedChatIds[2];
+    const String BOT_TOKEN = "5054228318:AAEY4d4M9VQMujE3A-zhw_ao8a5ieW746nU";
+    const String BOT_CONNECTION_PSW = "GreenHouseProject2022"
+    // String chat_ids[2] = {"9202122", "658340861"};
+    String chatIds[MAXCHATIDS];
+    int trying_chatIds_number = 0;
+    String permittedChatIds[MAXCHATIDS];
+    int permitted_chatIds_number = 0;
+
+    String botCommands;
 
     SerialCommunication *mySerial;
     State *mspState;
 
-    const String BOT_TOKEN = "5054228318:AAEY4d4M9VQMujE3A-zhw_ao8a5ieW746nU"; 
-    String chat_ids[2] = {"9202122", "658340861"};
+    unsigned long lastTimeBotRan;
+    int botRequestDelay = 1000; // checks for new messages time
+
+    bool shouldSetTime = false;
+
+    bool isIdPermitted(String);
+
+    int getUpdates();
+    void handleNewMessages(int, bool);
+    telegramMessage getMessage(int);
+
+    void startMessage(String, String);
+
+    void state(String);
+    void help(String);
+
 public:
-    UniversalTelegramBot bot;
     BotHandler(WiFiClientSecure &);
     BotHandler(const String &, WiFiClientSecure &, String[]);
     ~BotHandler();
 
-    unsigned long lastTimeBotRan;
-    int botRequestDelay = 1000; // checks for new messages time
+    void setCommands();
+    void setCommands(const String &);
 
-    int getUpdates();
-    bool isIdPermitted(String);
     void sendMessage(String, String);
-    telegramMessage getMessage(int);
 
     void begin(SerialCommunication *, State *);
-    void startMessage(String, String);
     void setAutomatic(String);
     void setManual(String);
-    void state(String);
-    void help(String);
-
-    void handleNewMessages(int, bool);
 
     void start(bool);
 };

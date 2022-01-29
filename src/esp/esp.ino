@@ -43,27 +43,32 @@ void setup()
 void loop()
 {
 	controller.start();
-	if (hasReceivedMessage && !controller.hasConnectionTimedOut) {
+	if (hasReceivedMessage && !controller.hasConnectionTimedOut)
+	{
 		controller.readFromMSP(controller.mySerial.readStringUntil('@'));
 		hasReceivedMessage = false;
 	}
 
-	if (!controller.getConnectionState() && (millis() - connection_timeout_timer > 1000)) { // 2 minutes == 120000
+	if (!controller.getConnectionState() && (millis() - connection_timeout_timer > 120000))
+	{ // 2 minutes == 120000
 		controller.hasConnectionTimedOut = true;
 #ifdef DEBUG
-    	Serial.println("Connection TimedOut");
+		Serial.println("Connection TimedOut");
 #endif
 	}
 
 	serialEvent1();
 }
 
-ICACHE_RAM_ATTR void uartInterrupt() {
+ICACHE_RAM_ATTR void uartInterrupt()
+{
 	hasReceivedMessage = true;
 }
 
-void serialEvent1() {
-	if (controller.mySerial.available() > 0) {
+void serialEvent1()
+{
+	if (controller.mySerial.available() > 0)
+	{
 		uartInterrupt();
 	}
 }

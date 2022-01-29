@@ -94,6 +94,7 @@ private:
     State state;
 
     bool isConnectedToMSP;
+    bool hasReceivedM;
 #endif
 };
 

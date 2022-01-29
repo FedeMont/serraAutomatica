@@ -1,14 +1,9 @@
-// #include <Arduino.h>
-// #include <WiFiClientSecure.h>
-// #include <UniversalTelegramBot.h> // Universal Telegram Bot Library written by Brian Lough: https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot
-
 #include "BotHandler.h"
-// #include "Types.h"
 
 BotHandler::BotHandler(WiFiClientSecure &client) : bot(this->BOT_TOKEN, client)
 {
-    for (int i = 0; i < (sizeof(this->permittedChatIds) / sizeof(*this->permittedChatIds)); i++)
-        this->permittedChatIds[i] = this->chat_ids[i];
+    // for (int i = 0; i < (sizeof(this->permittedChatIds) / sizeof(*this->permittedChatIds)); i++)
+    //     this->permittedChatIds[i] = this->chat_ids[i];
 }
 
 BotHandler::BotHandler(const String &token, WiFiClientSecure &client, String chatIds[]) : bot(token, client)
@@ -26,14 +21,25 @@ int BotHandler::getUpdates()
     return this->bot.getUpdates(this->bot.last_message_received + 1);
 }
 
-bool BotHandler::isIdPermitted(String id)
+bool BotHandler::isIdPermitted(String id, bool shouldCheckPermission = true)
 {
     bool isIdPermitted = false;
 
-    for (int i = 0; i < (sizeof(this->permittedChatIds) / sizeof(*this->permittedChatIds)); i++)
+    if (shouldCheckPermission)
     {
-        if (id == this->permittedChatIds[i])
-            isIdPermitted = true;
+        for (int i = 0; i < (sizeof(this->permittedChatIds) / sizeof(*this->permittedChatIds)); i++)
+        {
+            if (id == this->permittedChatIds[i])
+                isIdPermitted = true;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < MAXCHATIDS; i++)
+        {
+            if (id == this->chatIds[i])
+                isIdPermitted = true;
+        }
     }
 
     return isIdPermitted;
@@ -54,39 +60,41 @@ void BotHandler::begin(SerialCommunication *softwareSerial, State *state)
     this->mySerial = softwareSerial;
     this->mspState = state;
 
-    this->defaultBotCommands = (
-        "[" +
-        String("{\"command\":\"/start\", \"description\":\"Start bot\"},") +
-        String("{\"command\":\"/setautomatic\",\"description\":\"Set mode to automatic\"},") +
-        String("{\"command\":\"/setmanual\",\"description\":\"Set mode to manual\"},") +
-        String("{\"command\":\"/state\",\"description\":\"Request current state\"},") +
-        String("{\"command\":\"/help\",\"description\":\"Get help\"}") +
-        "]"
-    );
+    this->botCommands = ("[" +
+                         String("{\"command\":\"/start\", \"description\":\"Start bot\"},") +
+                         String("{\"command\":\"/setautomatic\",\"description\":\"Set mode to automatic\"},") +
+                         String("{\"command\":\"/setmanual\",\"description\":\"Set mode to manual\"},") +
 
-    this->manualBotCommands = (
-        "[" +
-        String("{\"command\":\"/start\", \"description\":\"Start bot\"},") +
-        String("{\"command\":\"/setautomatic\",\"description\":\"Set mode to automatic\"},") +
-        String("{\"command\":\"/setmanual\",\"description\":\"Set mode to manual\"},") +
-        
-        String("{\"command\":\"/changetime\",\"description\":\"Manual - Change time\"},") +
-        String("{\"command\":\"/togglelight\",\"description\":\"Manual - Turn on and off light\"},") +
-        String("{\"command\":\"/togglewater\",\"description\":\"Manual - Turn on and off water\"},") +
-        String("{\"command\":\"/togglefan\",\"description\":\"Manual - Turn on and off fan\"},") +
-        
-        String("{\"command\":\"/state\",\"description\":\"Request current state\"},") +
-        String("{\"command\":\"/help\",\"description\":\"Get help\"}") +
-        "]"
-    );
+                         String("{\"command\":\"/changetime\",\"description\":\"Manual - Change time\"},") +
+                         String("{\"command\":\"/togglelight\",\"description\":\"Manual - Turn on and off light\"},") +
+                         String("{\"command\":\"/togglewater\",\"description\":\"Manual - Open and close water\"},") +
+                         String("{\"command\":\"/togglefan\",\"description\":\"Manual - Turn on and off fan\"},") +
+
+                         String("{\"command\":\"/state\",\"description\":\"Request current state\"},") +
+                         String("{\"command\":\"/help\",\"description\":\"Get help\"}") +
+                         "]");
+}
+
+void BotHandler::setCommands()
+{
+    this->bot.setMyCommands(this->botCommands);
+}
+
+void BotHandler::setCommands(const String &commands)
+{
+    this->bot.setMyCommands(commands);
 }
 
 void BotHandler::startMessage(String chatId, String fromName)
 {
     String welcome = "Welcome, " + fromName + ".\n";
-    welcome += "Use the following commands to control your greenhouse.\n\n";
+    welcome += "Use the following commands to control your green house.\n\n";
     welcome += "/setautomatic to set mode to automatic\n";
     welcome += "/setmanual to set mode to manual\n";
+    welcome += "/changetime to change time (only manual)\n";
+    welcome += "/togglelight to turn on/off the light (only manual)\n";
+    welcome += "/togglewater to turn on/off the water pump (only manual)\n";
+    welcome += "/togglefan to turn on/off the fan (only manual)\n";
     welcome += "/state to request current mode state\n";
     welcome += "/help to get the command list\n";
 
@@ -95,25 +103,17 @@ void BotHandler::startMessage(String chatId, String fromName)
 
 void BotHandler::setAutomatic(String chatId)
 {
-    this->mySerial->send("/cautomatic");
+    // this->mySerial->send("/cautomatic");
     this->sendMessage(chatId, "Mode set to automatic.");
-
-#ifdef DEBUG
-    Serial.println(this->defaultBotCommands);
-#endif
-    this->bot.setMyCommands(this->defaultBotCommands);
 }
 
 void BotHandler::setManual(String chatId)
 {
-    this->mySerial->send("/cmanual");
+    // this->mySerial->send("/cmanual");
     this->sendMessage(chatId, "Mode set to manual.");
-    this->sendMessage(chatId, "Set time");
+    this->sendMessage(chatId, "Set time (hh:mm format)");
 
-#ifdef DEBUG
-    Serial.println(this->manualBotCommands);
-#endif
-this->bot.setMyCommands(this->manualBotCommands);
+    this->shouldSetTime = true;
 }
 
 void BotHandler::state(String chatId)
@@ -127,9 +127,13 @@ void BotHandler::state(String chatId)
 void BotHandler::help(String chatId)
 {
     String help = "Command list.\n";
-    help += "Use the following commands to control your greenhouse.\n\n";
+    help += "Use the following commands to control your green house.\n\n";
     help += "/setautomatic to set mode to automatic\n";
-    help += "/setmanual to set mode to manual\n";
+    help += "/setmanual to set mode to manual \n\n";
+    help += "/changetime to change time (only manual)\n";
+    help += "/togglelight to turn on/off the light (only manual)\n";
+    help += "/togglewater to turn on/off the water pump (only manual)\n";
+    help += "/togglefan to turn on/off the fan (only manual) \n\n";
     help += "/state to request current mode state\n";
     help += "/help to get the command list\n";
 
@@ -146,87 +150,188 @@ void BotHandler::handleNewMessages(int newMessages, bool isConnected)
         String text = message.text;
         String fromName = message.from_name;
 
-        if (!this->isIdPermitted(chatId))
-        {
-            this->sendMessage(chatId, "Unauthorized user");
-            continue;
-        }
-
-        if (!isConnected) {
-            this->sendMessage(chatId, "Cannot communicate with the green house.");
-            continue;
-        }
-
 #ifdef DEBUG
-            Serial.println(text);
+        Serial.println(text);
 #endif
 
+        if (!isConnected)
+        {
+            this->sendMessage(chatId, "I'm sorry " + fromName + ",\n I cannot communicate with the greenhouse.");
+            continue;
+        }
+
         if (text == "/start")
-            this->startMessage(chatId, fromName);
-        else if (text == "/setautomatic")
-            this->setAutomatic(chatId);
+        {
+            if (!this->isIdPermitted(chatId))
+            { // user not logged yet
+                if (!this->isIdPermitted(chatId, false))
+                { // user not loggin in yet
+                    if (this->trying_chatIds_number < MAXCHATIDS)
+                    {
+                        this.chatIds[this->trying_chatIds_number++] = chatId;
+                    }
+                    else
+                    {
+                        this->sendMessage(chatId, "Too many users are trying to connect, sorry.");
+                        continue;
+                    }
+                    // this->sendMessage(chatId, "To control the green house please send the password");
+                }
+                // else
+                // { // user already loggin in
+                this->sendMessage(chatId, "To control the green house please send the password");
+                // }
+            }
+            else
+            { // user already logged
+                this->sendMessage(chatId, "You are already connected.");
+                this->startMessage(chatId, fromName);
+            }
+
+            continue;
+        }
+
+        if (!this->isIdPermitted(chatId))
+        { // user not logged yet
+            if (this->isIdPermitted(chatId, false))
+            { // user is trying to connect
+                if (text == this->BOT_CONNECTION_PSW)
+                { // authorized user
+                    if (this->permitted_chatIds_number < MAXCHATIDS)
+                    {
+                        this->permittedChatIds[this->permitted_chatIds_number++] = chatId;
+                        this->startMessage(chatId, fromName);
+
+                        // togliere chatId da chatIds
+                    }
+                    else
+                    {
+                        this->sendMessage(chatId, "Too many users are already connected, sorry.");
+                        continue;
+                    }
+                }
+                else
+                {
+                    this->sendMessage(chatId, "Sorry, the password is wrong, try again.");
+                }
+            }
+            else
+            {
+                this->sendMessage(chatId, "To try connect please /start the initial procedure.");
+            }
+
+            continue;
+        }
+
+        // if (text == "/start")
+        //     this->startMessage(chatId, fromName);
+        if (text == "/setautomatic")
+        {
+            // this->setAutomatic(chatId);
+            this->mySerial->send("/cautomatic");
+            this->mySerial->send(String("/i" + chatId));
+        }
         else if (text == "/setmanual")
-            this->setManual(chatId);
+        {
+            // this->setManual(chatId);
+            this->mySerial->send("/cmanual");
+            this->mySerial->send(String("/i" + chatId));
+        }
         else if (text == "/state")
+        {
             this->state(chatId);
+        }
         else if (text == "/help")
+        {
             this->help(chatId);
+        }
         else if (text == "/changetime")
-            if (*this->mspState == State_MANUAL) {
-                this->sendMessage(chatId, "Set time");
-            } else {
+        {
+            if (*this->mspState == State_MANUAL)
+            {
+                this->sendMessage(chatId, "Set time (hh:mm format)");
+            }
+            else
+            {
                 this->sendMessage(chatId, "You can send this command only in manual mode.");
             }
-        else if (text == "/togglelight") {
-            if (*this->mspState == State_MANUAL) {
+        }
+        else if (text == "/togglelight")
+        {
+            if (*this->mspState == State_MANUAL)
+            {
                 this->mySerial->send("/ctogglelight");
                 this->mySerial->send(String("/i" + chatId));
-            } else {
+            }
+            else
+            {
                 this->sendMessage(chatId, "You can send this command only in manual mode.");
             }
         }
-        else if (text == "/togglewater") {
-            if (*this->mspState == State_MANUAL) {
+        else if (text == "/togglewater")
+        {
+            if (*this->mspState == State_MANUAL)
+            {
                 this->mySerial->send("/ctogglewater");
                 this->mySerial->send(String("/i" + chatId));
-            } else {
+            }
+            else
+            {
                 this->sendMessage(chatId, "You can send this command only in manual mode.");
             }
         }
-        else if (text == "/togglefan") {
-            if (*this->mspState == State_MANUAL) {
+        else if (text == "/togglefan")
+        {
+            if (*this->mspState == State_MANUAL)
+            {
                 this->mySerial->send("/ctogglefan");
                 this->mySerial->send(String("/i" + chatId));
-            } else {
+            }
+            else
+            {
                 this->sendMessage(chatId, "You can send this command only in manual mode.");
             }
         }
-        else { // time
-            bool isCorrect = false;
-            isCorrect = (text.length() <= 5) && isdigit(text.charAt(0)) && isdigit(text.charAt(1)) && (text.charAt(2) == ':') && isdigit(text.charAt(3)) && isdigit(text.charAt(4));
-
-            if (isCorrect)
+        else
+        { // time
+            if (this->shouldSetTime)
             {
-                if ((text.charAt(0) - '0') <= 1) {
-                    isCorrect = isdigit(text.charAt(1)) && (text.charAt(1) - '0') <= 9;
-                } else if ((text.charAt(0) - '0') == 2) {
-                    isCorrect = isdigit(text.charAt(1)) && (text.charAt(1) - '0') <= 3;
-                } else {
-                    isCorrect = false;
+                bool isCorrect = false;
+                isCorrect = (text.length() <= 5) && isdigit(text.charAt(0)) && isdigit(text.charAt(1)) && (text.charAt(2) == ':') && isdigit(text.charAt(3)) && isdigit(text.charAt(4));
+
+                if (isCorrect)
+                {
+                    if ((text.charAt(0) - '0') <= 1)
+                    {
+                        isCorrect = isdigit(text.charAt(1)) && (text.charAt(1) - '0') <= 9;
+                    }
+                    else if ((text.charAt(0) - '0') == 2)
+                    {
+                        isCorrect = isdigit(text.charAt(1)) && (text.charAt(1) - '0') <= 3;
+                    }
+                    else
+                    {
+                        isCorrect = false;
+                    }
+
+                    isCorrect = (isdigit(text.charAt(3)) && (text.charAt(3) - '0') <= 5) && (isdigit(text.charAt(4)) && (text.charAt(4) - '0') <= 9);
                 }
 
-                isCorrect = (isdigit(text.charAt(3)) && (text.charAt(3) - '0') <= 5) && (isdigit(text.charAt(4)) && (text.charAt(4) - '0') <= 9);
+                if (isCorrect)
+                    this->mySerial->send(String("/d" + text));
+                else
+                    this->sendMessage(chatId, "Set time again, the correct format is hh:mm");
             }
-            
-            if(isCorrect)
-                this->mySerial->send(String("/d" + text));
             else
-                this->sendMessage(chatId, "Set time again, the correct format is hh:mm");
-        }     
+            {
+                this->sendMessage(chatId, "Please send a command.");
+            }
+        }
     }
 }
 
-void BotHandler::start(bool isESPConnectedToMSP) {
+void BotHandler::start(bool isESPConnectedToMSP)
+{
     if (millis() > this->lastTimeBotRan + this->botRequestDelay)
     {
         int numNewMessages = this->getUpdates();

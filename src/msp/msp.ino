@@ -44,7 +44,7 @@ void loop()
 		hasReceivedMessage = false;
 	}
 
-	if (!hasConnectionTimedOut && !controller.getConnectionState() && (millis() - connection_timeout_timer > 1000)) { // 2 minutes == 120000
+	if (!hasConnectionTimedOut && !controller.getConnectionState() && (millis() - connection_timeout_timer > 120000)) { // 2 minutes == 120000
 		controller.connectionTimeOut();
 		hasConnectionTimedOut = true;
 #ifdef DEBUG

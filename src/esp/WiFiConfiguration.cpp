@@ -1,8 +1,4 @@
 #include "WiFiConfiguration.h"
-// #include "Types.h"
-
-// #include <Arduino.h>
-// #include <ESP8266WiFi.h>
 
 WiFiConfiguration::WiFiConfiguration(const char *ssid, const char *psw)
 {
@@ -22,21 +18,20 @@ void WiFiConfiguration::connect()
 
     while (WiFi.status() != WL_CONNECTED)
     {
-        #ifdef DEBUG
-            Serial.println("Connecting to WiFi..");
-        #endif
+#ifdef DEBUG
+        Serial.println("Connecting to WiFi..");
+#endif
         digitalWrite(2, HIGH);
         delay(500);
         digitalWrite(2, LOW);
         delay(500);
     }
 
-    // Print ESP32 Local IP Address
-    #ifdef DEBUG
-        Serial.println(WiFi.localIP());
-    #endif
+// Print ESP32 Local IP Address
+#ifdef DEBUG
+    Serial.println(WiFi.localIP());
+#endif
     digitalWrite(2, LOW);
     delay(2000);
     digitalWrite(2, HIGH);
-
 }

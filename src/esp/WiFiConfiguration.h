@@ -15,7 +15,7 @@ private:
 public:
     WiFiConfiguration(const char *, const char *);
     ~WiFiConfiguration();
-    
+
     void connect();
 };
 
