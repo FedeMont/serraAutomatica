@@ -10,7 +10,8 @@ Controller::~Controller()
 {
 }
 
-void Controller::setDefaultValues() {
+void Controller::setDefaultValues()
+{
     this->hasConnectionTimedOut = false;
     this->isConnectedToESP = false;
 
@@ -20,37 +21,34 @@ void Controller::setDefaultValues() {
 
     this->isMinutePassed = true;
     this->shouldWatering = false;
+    this->shouldLight = false;
+    this->shouldFan = false;
 
-    this->hasReceivedState = false;
-    this->hasReceivedLight = false;
-    this->hasReceivedWater = false;
-    this->hasReceivedFan = false;
     this->hasSendDate = false;
-
-    this->lightManual = false;
-    this->waterManual = false;
-    this->fanManual = false;
 }
 
-void Controller::threeWayHandShake(const String &text) {
+void Controller::threeWayHandShake(const String &text)
+{
     if (text == "START")
     {
         this->isConnectedToESP = false;
         this->mySerial.send("/sSTART2");
     }
-    else if (text == "STARTACK") {
+    else if (text == "STARTACK")
+    {
 #ifdef DEBUG
-    Serial.println("Connected to ESP");
+        Serial.println("Connected to ESP");
 #endif
         this->isConnectedToESP = true;
     }
 }
 
-bool Controller::getConnectionState() {
+bool Controller::getConnectionState()
+{
     return this->isConnectedToESP;
 }
 
-void Controller::begin(Display *display, Navigator *navigator, MyClock *myClock, SoilSensor *soilSensor)
+void Controller::begin(Display *display, Navigator *navigator, MyClock *myClock, SoilSensor *soilSensor, TemperatureSensor *temperatureSensor)
 {
     Serial.begin(115200);
     this->mySerial.begin(115200);
@@ -59,102 +57,119 @@ void Controller::begin(Display *display, Navigator *navigator, MyClock *myClock,
     this->navigator = navigator;
     this->myClock = myClock;
     this->soilSensor = soilSensor;
+    this->temperatureSensor = temperatureSensor;
 
     this->display->begin();
     this->navigator->begin();
+    this->temperatureSensor->begin();
 }
 
-void Controller::wait() {
+void Controller::wait()
+{
     long timer = millis();
-    while (millis() - timer < 1500);
+    while (millis() - timer < 500);
 }
 
-void Controller::sendEndMessage(const String &chatId) {
-    this->mySerial.send("/e" + chatId);
+void Controller::sendEndMessage(const String &chatId)
+{
+    this->mySerial.send("/eend&" + chatId);
 }
 
-void Controller::sendState(const String &chatId) 
+void Controller::sendState(const String &chatId)
 {
     this->sendModeState();
     this->wait();
 
-    if (this->state == State_AUTOMATIC) 
-    {
-        this->sendDayCycleState();
-        this->wait();
-        this->sendTimeState();
-        this->wait();
-        this->sendSoilState();
-        this->wait();
-        this->sendWateringState();
-    }
-    else 
-    {
-
-    }
-
+    this->sendTimeState("");
     this->wait();
+    this->sendDayCycleState();
+    this->wait();
+    this->sendLightState("");
+    this->wait();
+
+    this->sendSoilState();
+    this->wait();
+    this->sendWateringState("");
+    this->wait();
+
+    this->sendTemperatureState();
+    this->wait();
+    this->sendFanState("");
+    this->wait();
+    
     this->sendEndMessage(chatId);
 }
 
 void Controller::sendModeState()
 {
-    if (this->state == State_AUTOMATIC) 
+    this->mySerial.send("/imode=" + String((this->state == State_AUTOMATIC) ? "automatic" : "manual"));
+}
+
+void Controller::sendTimeState(const String &chatId)
+{
+    if (chatId == "")
     {
-        this->mySerial.send("/iThe green house is in automatic mode.\n");
-    } else 
+        this->mySerial.send("/itime=" + this->myClock->getTimeAsString());
+    }
+    else
     {
-        this->mySerial.send("/iThe green house is in manual mode.\n");
+        this->mySerial.send("/itimes=" + this->myClock->getTimeAsString());
+        this->wait();
+        this->sendEndMessage(chatId);
     }
 }
 
 void Controller::sendDayCycleState()
 {
-    this->mySerial.send("/iNow is " + String((this->myClock->dayCycle == DayCycle_DAY)? "day" : "night") + ".\n");
+    this->mySerial.send("/iday=" + String((this->shouldLight) ? "sun is shining" : "moon is up"));
 }
 
-void Controller::sendTimeState()
+void Controller::sendLightState(const String &chatId)
 {
-    this->mySerial.send("/iThe time is " + this->myClock->getTimeAsString() + ".\n");
-}
+    if (chatId != "")
+    {
+        this->mySerial.send("/ilights=" + String((this->shouldLight) ? "on" : "off"));
+        this->wait();
+        this->sendEndMessage(chatId);
+    }else{
+        this->mySerial.send("/ilight=" + String((this->shouldLight) ? "on" : "off"));
 
-void Controller::sendWateringState()
-{
-    this->mySerial.send("/iThe plant is " + String((this->shouldWatering == true)? "being watered" : "not being watered") + ".\n");
+    }
 }
 
 void Controller::sendSoilState()
 {
-    this->mySerial.send("/iSoil sensor is at " + String(this->soilSensor->readSensor()) + "%.\n");
+    this->mySerial.send("/isoil=" + String(this->soilSensor->valueToPercentage(this->soilSensor->readSensor())));
 }
 
-void Controller::sendLightManual(const String &chatId) 
+void Controller::sendWateringState(const String &chatId)
 {
-    this->mySerial.send("/iThe light is " + String((this->lightManual)? "ON" : "OFF") + ".\n");
-    this->wait();
-    this->sendEndMessage(chatId);
-
-    this->hasReceivedLight = false;
+    if (chatId != "")
+    {
+        this->mySerial.send("/iwaters=" + String((this->shouldWatering == false) ? "not ": ""));
+        this->wait();
+        this->sendEndMessage(chatId);
+    }else{
+        this->mySerial.send("/iwater=" + String((this->shouldWatering == false) ? "not " : ""));
+    }
 }
 
-void Controller::sendWaterManual(const String &chatId)
+void Controller::sendTemperatureState()
 {
-    this->mySerial.send("/iThe plant is " + String((this->waterManual)? "being watered" : "not being watered") + ".\n");
-    this->wait();
-    this->sendEndMessage(chatId);
-
-    this->hasReceivedWater = false;
+    this->mySerial.send("/itemperature=" + String(this->temperatureSensor->readDiet()));
 }
 
-void Controller::sendFanManual(const String &chatId)
+void Controller::sendFanState(const String &chatId)
 {
-    this->mySerial.send("/iThe fan is " + String((this->fanManual)? "ON" : "OFF") + ".\n");
-    this->wait();
-    this->sendEndMessage(chatId);
-
-    this->hasReceivedFan = false;
+    if (chatId != "")
+    {
+        this->mySerial.send("/ifans=" + String((this->shouldFan) ? "spinning" : "off"));
+        this->wait();
+        this->sendEndMessage(chatId);
+    }else{
+        this->mySerial.send("/ifan=" + String((this->shouldFan) ? "spinning" : "off"));
+    }
 }
-
 
 void Controller::manualChooseState(Action action)
 {
@@ -175,7 +190,8 @@ void Controller::manualChooseState(Action action)
         case Action_NONE:
             this->previousSelectedAction = Action_UP;
             this->previousState = State_MANUAL;
-            this->display->chooseState(this->previousState);;
+            this->display->chooseState(this->previousState);
+            ;
             break;
         default:
             break;
@@ -194,7 +210,8 @@ void Controller::manualChooseState(Action action)
     case Action_SELECT:
         if (this->previousSelectedAction != Action_NONE)
         {
-            if (this->previousState == State_AUTOMATIC) {
+            if (this->previousState == State_AUTOMATIC)
+            {
                 this->mySerial.send("/d");
                 this->hasSendDate = true;
             }
@@ -207,12 +224,12 @@ void Controller::manualChooseState(Action action)
     }
 }
 
-void Controller::changeState(State state) {
-    if (this->state != state) {
-
+void Controller::changeState(State state)
+{
+    if (this->state != state)
+    {
         this->isMinutePassed = true;
 
-        this->hasReceivedState = false;
         this->hasSendDate = false;
 
         this->previousState = State_NONE;
@@ -234,120 +251,133 @@ void Controller::readFromESP(const String &msg)
 {
     Command command = this->mySerial.commandParser(msg);
 
-    if (command.isValid) {
+    if (command.isValid)
+    {
         switch (command.commandType)
         {
-        case 's': { // start
+        case 's':
+        { // start
 #ifdef DEBUG
             Serial.print("start: ");
             Serial.println(command.commandText);
 #endif
-            this->threeWayHandShake(command.commandText); 
-        } break;
-        case 'd': { // date
+            this->threeWayHandShake(command.commandText);
+        }
+        break;
+        case 'd':
+        { // date
 #ifdef DEBUG
             Serial.print("date: ");
             Serial.println(command.commandText);
+            Serial.println(command.chatId);
             Serial.println(this->hasSendDate);
 #endif
             this->myClock->saveTime(command.commandText);
-            if (this->hasSendDate) {
+            if (this->hasSendDate)
+            {
                 this->changeState(State_AUTOMATIC);
+                this->mySerial.send("/mautomatic&" + command.chatId);
                 this->hasSendDate = false;
-            } else {
+            }
+            else
+            {
                 this->isMinutePassed = true;
                 this->display->resetHomeScreenFlags();
                 this->display->clear();
+                this->sendTimeState(command.chatId);
             }
-        } break;
-        case 'c': { // command
+        }
+        break;
+        case 'c':
+        { // command
 #ifdef DEBUG
             Serial.print("command: ");
             Serial.println(command.commandText);
+            Serial.println(command.chatId);
 #endif
-            if (command.commandText == "automatic") {
-                this->mySerial.send("/mautomatic");
-                this->mySerial.send("/d");
+            if (command.commandText == "automatic")
+            {
+                this->mySerial.send("/ddate&" + command.chatId);
                 this->hasSendDate = true;
-
-            } else if (command.commandText == "manual") {
-                this->mySerial.send("/mmanual");
+            }
+            else if (command.commandText == "manual")
+            {
                 this->changeState(State_MANUAL);
+                this->mySerial.send("/mmanual&" + command.chatId);
                 this->myClock->isTimeSaved = false;
-
-            } else if (command.commandText == "state") {
-                this->hasReceivedState = true;
-                // Command chatId_command = this->mySerial.rehasReceivedLight
-            } else if (command.commandText == "togglelight"){
-                this->hasReceivedLight = true;
-                if(!this->lightManual) {
+            }
+            else if (command.commandText == "state")
+            {
+                this->sendState(command.chatId);
+            }
+            else if (command.commandText == "togglelight")
+            {
+                if (!this->shouldLight)
+                {
                     this->navigator->lightOn();
 #ifdef DEBUG
                     Serial.println("Light on");
 #endif
-                }else {
+                }
+                else
+                {
                     this->navigator->lightOff();
 #ifdef DEBUG
                     Serial.println("Light off");
 #endif
                 }
-                this->lightManual = !this->lightManual;
-
-            }else if (command.commandText == "togglewater"){
-                this->hasReceivedWater = true;
-                if(!this->waterManual) {
+                this->shouldLight = !this->shouldLight;
+                this->sendLightState(command.chatId);
+            }
+            else if (command.commandText == "togglewater")
+            {
+                if (!this->shouldWatering)
+                {
                     this->navigator->waterOn();
+                    this->mySerial.send("/iwateron&" + command.chatId);
+                    this->wateringTimer = millis();
 #ifdef DEBUG
                     Serial.println("Water on");
 #endif
-                }else {
+                }
+                else
+                {
                     this->navigator->waterOff();
 #ifdef DEBUG
                     Serial.println("Water off");
 #endif
                 }
-                this->waterManual = !this->waterManual;
-
-            } else if (command.commandText == "togglefan"){
-                this->hasReceivedFan = true;
-                if(!this->fanManual) {
+                this->shouldWatering = !this->shouldWatering;
+                this->sendWateringState(command.chatId);
+            }
+            else if (command.commandText == "togglefan")
+            {
+                if (!this->shouldFan)
+                {
                     this->navigator->fanOn();
 #ifdef DEBUG
                     Serial.println("Fan on");
 #endif
                 }
-                else {
+                else
+                {
                     this->navigator->fanOff();
 #ifdef DEBUG
                     Serial.println("Fan off");
 #endif
                 }
-                this->fanManual = !this->fanManual;
+                this->shouldFan = !this->shouldFan;
+                this->sendFanState(command.chatId);
             }
-
-        } break;
-        case 'i': {
+        }
+        break;
+        case 'i':
+        {
 #ifdef DEBUG
             Serial.print("info: ");
             Serial.println(command.commandText);
+            Serial.println(command.chatId);
 #endif
-            if (this->hasReceivedState)
-            {
-                this->sendState(command.commandText);
-                this->hasReceivedState = false;
-            }
-            else if (this->hasReceivedLight)
-            {
-                this->sendLightManual(command.commandText);
-            }
-            else if(this->hasReceivedWater)
-            {
-                this->sendWaterManual(command.commandText);
-            }
-            else if(this->hasReceivedFan)
-            {
-                this->sendFanManual(command.commandText);
-            }
         }
         default:
             break;
@@ -357,10 +387,13 @@ void Controller::readFromESP(const String &msg)
 
 void Controller::automaticStart()
 {
-    int sensorValue = this->soilSensor->readSensor();
-    this->shouldWatering = this->soilSensor->shouldWatering(sensorValue);
+    int soilSensorValue = this->soilSensor->readSensor();
+    float temperatureSensorValue = this->temperatureSensor->readDiet();
 
-    this->display->homeScreen(this->myClock->getTimeAsString(), this->isMinutePassed, this->myClock->dayCycle, sensorValue, this->shouldWatering); // first write
+    this->shouldWatering = this->soilSensor->shouldWatering(soilSensorValue);
+    float soilSensorPercentage = this->soilSensor->valueToPercentage(soilSensorValue);
+
+    this->display->homeScreen(this->myClock->getTimeAsString(), this->isMinutePassed, this->myClock->dayCycle, soilSensorPercentage, temperatureSensorValue, this->shouldWatering); // first write
 
     if (this->shouldWatering)
     {
@@ -374,7 +407,9 @@ void Controller::automaticStart()
     this->isMinutePassed = this->myClock->isMinutePassed(); // check if minute is really passed
     this->myClock->clock(this->isMinutePassed);
 
-    if (this->myClock->dayCycle == DayCycle_DAY)
+    this->shouldLight = (this->myClock->dayCycle == DayCycle_DAY);
+
+    if (this->shouldLight)
     {
         this->navigator->lightOn();
     }
@@ -383,7 +418,16 @@ void Controller::automaticStart()
         this->navigator->lightOff();
     }
 
+    this->shouldFan = this->temperatureSensor->shouldFan(temperatureSensorValue);
 
+    if (this->shouldFan)
+    {
+        this->navigator->fanOn();
+    }
+    else
+    {
+        this->navigator->fanOff();
+    }
 }
 
 void Controller::manualStart(Action action)
@@ -402,19 +446,29 @@ void Controller::manualStart(Action action)
     }
     else
     {
-        int sensorValue = this->soilSensor->readSensor();
-        this->display->homeScreen(this->myClock->getTimeAsString(), this->isMinutePassed, this->myClock->dayCycle, sensorValue, shouldWatering); // first write
+        int soilSensorValue = this->soilSensor->readSensor();
+        float temperatureSensorValue = this->temperatureSensor->readDiet();
+        float soilSensorPercentage = this->soilSensor->valueToPercentage(soilSensorValue);
+
+        this->display->homeScreen(this->myClock->getTimeAsString(), this->isMinutePassed, (this->shouldLight)? DayCycle_DAY : DayCycle_NIGHT, soilSensorPercentage, temperatureSensorValue, shouldWatering); // first write
+
         this->isMinutePassed = this->myClock->isMinutePassed(); // check if minute is really passed
         this->myClock->clock(this->isMinutePassed);
+
+        if (this->shouldWatering) {
+            if (millis() - this->wateringTimer > 180000) { // 3 minutes = 180000
+                this->shouldWatering = false;
+                this->navigator->waterOff();
+#ifdef DEBUG
+                Serial.println("WATER OFF CAUSE OF TIMER");
+#endif
+            }
+        }
     }
 }
 
-// void Controller::automaticStart()
-// {
-//     this->home();
-// }
-
-void Controller::connectionTimeOut(){
+void Controller::connectionTimeOut()
+{
     this->hasConnectionTimedOut = true;
     this->display->clear();
 }
@@ -446,5 +500,4 @@ void Controller::start()
     }
 
     serialEventRun1();
-    // writeToESP();
 }

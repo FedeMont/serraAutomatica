@@ -17,8 +17,6 @@ void Controller::setDefaultValues()
 
     this->infoMessage = "";
     this->state = State_NONE;
-
-    this->hasReceivedM = false;
 }
 
 void Controller::threeWayHandShake(const String &text)
@@ -62,6 +60,63 @@ String Controller::getTime()
     return this->timeAndDateClient->getFormattedTime().substring(0, 5);
 }
 
+
+void Controller::stateMsgParser(Command command) 
+{
+    if (command.commandText == "mode")
+    {
+        this->infoMessage += "The green house is in " + command.commandValue + " mode.\n\n";
+    }
+    else if (command.commandText == "time") 
+    {
+        this->infoMessage += "It's " + command.commandValue + " ";
+    }
+    else if (command.commandText == "times") 
+    {
+        this->infoMessage += "Time set to " + command.commandValue + ".";
+    }
+    else if (command.commandText == "day") 
+    {
+        this->infoMessage += "and the " + command.commandValue + ", ahem... I mean ";
+    }
+    else if (command.commandText == "light") 
+    {
+        this->infoMessage += "the light is " + command.commandValue + ".\n";
+    }
+    else if (command.commandText == "lights") 
+    {
+        this->infoMessage += "The light is " + command.commandValue + ".";
+    }
+    else if (command.commandText == "soil") 
+    {
+        this->infoMessage += "Soil humdity is at " + command.commandValue + "%, and ";
+    }
+    else if (command.commandText == "water") 
+    {
+        this->infoMessage += "the plant is " + command.commandValue + "being watered.\n";
+    }
+    else if (command.commandText == "waters") 
+    {
+        this->infoMessage += "The plant is " + command.commandValue + "being watered.";
+    }
+    else if (command.commandText == "wateron") 
+    {
+        this->infoMessage += "Water will be open for 3 minutes.";
+    }
+    else if (command.commandText == "temperature")
+    {
+        this->infoMessage += "The temperature sensor is measuring " + command.commandValue + "°C, so ";
+    }
+    else if (command.commandText == "fan") 
+    {
+        this->infoMessage += "the fan is " + command.commandValue + ".";
+    }
+    else if (command.commandText == "fan") 
+    {
+        this->infoMessage += "The fan is " + command.commandValue + ".";
+    }
+}
+
 void Controller::readFromMSP(const String &msg)
 {
     Command command = this->mySerial.commandParser(msg);
@@ -82,10 +137,11 @@ void Controller::readFromMSP(const String &msg)
         { // date
 #ifdef DEBUG
             Serial.print("date: ");
-            Serial.print(command.commandText + ", ");
+            Serial.println(command.commandText);
+            Serial.println(command.chatId);
             Serial.println(this->getTime());
 #endif
-            this->mySerial.send(String("/d" + this->getTime()));
+            this->mySerial.send(String("/d" + this->getTime()) + "&" + command.chatId);
         }
         break;
         case 'c':
@@ -93,6 +149,7 @@ void Controller::readFromMSP(const String &msg)
 #ifdef DEBUG
             Serial.print("command: ");
             Serial.println(command.commandText);
+            Serial.println(command.chatId);
 #endif
         }
         break;
@@ -101,16 +158,17 @@ void Controller::readFromMSP(const String &msg)
 #ifdef DEBUG
             Serial.print("command: ");
             Serial.println(command.commandText);
+            Serial.println(command.chatId);
 #endif
-            this->hasReceivedM = true;
-
             if (command.commandText == "automatic")
             {
                 this->state = State_AUTOMATIC;
+                this->botHandler->setAutomatic(command.chatId);
             }
             else
             {
                 this->state = State_MANUAL;
+                this->botHandler->setManual(command.chatId);
             }
         }
         break;
@@ -119,9 +177,10 @@ void Controller::readFromMSP(const String &msg)
 #ifdef DEBUG
             Serial.print("info: ");
             Serial.println(command.commandText);
+            Serial.println(command.chatId);
             Serial.println(this->infoMessage);
 #endif
-            this->infoMessage += command.commandText;
+            this->stateMsgParser(command);
         }
         break;
         case 'e':
@@ -129,25 +188,10 @@ void Controller::readFromMSP(const String &msg)
 #ifdef DEBUG
             Serial.print("end: ");
             Serial.println(command.commandText);
+            Serial.println(command.chatId);
 #endif
-            if (this->hasReceivedM)
-            {
-                if (this->state == State_AUTOMATIC)
-                {
-                    this->botHandler->setAutomatic(command.commandText);
-                }
-                else
-                {
-                    this->botHandler->setManual(command.commandText);
-                }
-
-                this->hasReceivedM = false;
-            }
-            else
-            {
-                this->botHandler->sendMessage(command.commandText, this->infoMessage);
-                this->infoMessage = "";
-            }
+            this->botHandler->sendMessage(command.chatId, this->infoMessage);
+            this->infoMessage = "";
         }
         break;
 

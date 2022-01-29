@@ -18,6 +18,10 @@ Controller controller;
 
 #include "SoilSensor.h"
 SoilSensor soilSensor;
+
+#include "TemperatureSensor.h"
+TemperatureSensor temperatureSensor;
+
 #include <Wire.h> // Needed by Energia for Tiva C LaunchPad
 
 volatile bool hasReceivedMessage = false;
@@ -30,7 +34,7 @@ void setup()
 	// attachInterrupt(5, read1, CHANGE); // funziona
 	// attachInterrupt(3, serialEventRun1, CHANGE); // non funziona
 
-	controller.begin(&display, &navigator, &myClock, &soilSensor);
+	controller.begin(&display, &navigator, &myClock, &soilSensor, &temperatureSensor);
 	connection_timeout_timer = millis();
 }
 

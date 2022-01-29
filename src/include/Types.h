@@ -33,6 +33,10 @@ typedef struct {
     bool isValid;
     char commandType;
     String commandText;
+#ifndef Energia_h
+    String commandValue;
+#endif
+    String chatId;
 } Command;
 
 typedef struct

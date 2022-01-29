@@ -54,13 +54,13 @@ enum Action Navigator::getAction()
 
 void Navigator::lightOn()
 {
-    this->fanOn();
+    // this->fanOn();
     digitalWrite(this->lightRelay, HIGH);
 }
 
 void Navigator::lightOff()
 {
-    this->fanOff();
+    // this->fanOff();
     digitalWrite(this->lightRelay, LOW);
 }
 

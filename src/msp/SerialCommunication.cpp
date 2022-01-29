@@ -28,24 +28,43 @@ void SerialCommunication::send(const String &text) {
     Serial1.print(message);
 }
 
-Command SerialCommunication::commandParser(const String &completeMessage) {
+Command SerialCommunication::commandParser(const String &message) {
     Command command;
 
+    String completeMessage = message.substring(message.indexOf('/'));
     String type = completeMessage.substring(0, 2);
-    String text = completeMessage.substring(2);
+    String msg = completeMessage.substring(2);
+    String text;
+    String chatId = "";
+
+    if (msg.indexOf('&') > 0)
+    {
+        text = msg.substring(0, msg.indexOf('&'));
+        chatId = msg.substring(msg.indexOf('&') + 1);
+    }
+    else 
+    {
+        text = msg;
+    }
+    
 
 #ifdef DEBUG
     Serial.println("RECEIVED");
+    Serial.println(completeMessage);
     Serial.println(type);
     Serial.println(text);
+    Serial.println(chatId);
 #endif
 
-    if (type.charAt(0) == '/') {
+    if (type.charAt(0) == '/')
+    {
         command.isValid = true;
         command.commandType = type.charAt(1);
         command.commandText = text;
+        command.chatId = chatId;
     }
-    else {
+    else
+    {
         command.isValid = false;
     }
 

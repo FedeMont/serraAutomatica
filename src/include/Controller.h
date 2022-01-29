@@ -7,6 +7,7 @@
 #include "Navigator.h"
 #include "MyClock.h"
 #include "SoilSensor.h"
+#include "TemperatureSensor.h"
 #else
 #include <Arduino.h>
 #include <NTPClient.h>
@@ -23,7 +24,7 @@ public:
     ~Controller();
 
 #ifdef Energia_h
-    void begin(Display *, Navigator *, MyClock *, SoilSensor *);
+    void begin(Display *, Navigator *, MyClock *, SoilSensor *, TemperatureSensor *);
     void readFromESP(const String&);
 #else
     void begin(BotHandler *, WiFiConfiguration *, NTPClient *);
@@ -45,6 +46,7 @@ private:
     Navigator *navigator;
     MyClock *myClock;
     SoilSensor *soilSensor;
+    TemperatureSensor *temperatureSensor;
 
     State state;
     State previousState;
@@ -55,14 +57,13 @@ private:
 
     void sendState(const String &);
     void sendModeState();
+    void sendTimeState(const String &);
     void sendDayCycleState();
-    void sendTimeState();
-    void sendWateringState();
+    void sendLightState(const String &);
     void sendSoilState();
-
-    void sendLightManual(const String &);
-    void sendWaterManual(const String &);
-    void sendFanManual(const String &);
+    void sendWateringState(const String &);
+    void sendTemperatureState();
+    void sendFanState(const String &);
 
     void manualChooseState(Action);
     void changeState(State);
@@ -75,16 +76,12 @@ private:
 
     bool isMinutePassed; // true for first clock write
     bool shouldWatering;
+    bool shouldLight;
+    bool shouldFan;
 
-    bool hasReceivedState;
-    bool hasReceivedLight;
-    bool hasReceivedWater;
-    bool hasReceivedFan;
     bool hasSendDate;
 
-    bool lightManual;
-    bool waterManual;
-    bool fanManual;
+    long wateringTimer;
 #else
     BotHandler *botHandler;
     WiFiConfiguration *wifiConfiguration;
@@ -93,8 +90,9 @@ private:
     String infoMessage;
     State state;
 
+    void stateMsgParser(Command);    
+
     bool isConnectedToMSP;
-    bool hasReceivedM;
 #endif
 };
 

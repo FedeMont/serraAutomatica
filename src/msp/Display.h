@@ -38,7 +38,7 @@ public:
     void chooseState(State);
     void chooseTime(int, int[]);
     void resetHomeScreenFlags();
-    void homeScreen(String, bool, DayCycle, int, bool);
+    void homeScreen(String, bool, DayCycle, float, float, bool);
     
     int calculateTextSize(String);
     int *getScreenSize();

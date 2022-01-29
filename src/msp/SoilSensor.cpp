@@ -37,3 +37,8 @@ bool SoilSensor::shouldWatering(int sensorValue)
 // #endif
     return this->lastShouldWatering;
 }
+
+float SoilSensor::valueToPercentage(int value) {
+    float percentage = (100 * (float)value) / (float)(this->maxValue - this->minValue);
+    return 100.0 - percentage;
+}

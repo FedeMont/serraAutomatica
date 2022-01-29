@@ -41,18 +41,40 @@ void SerialCommunication::send(const String &text)
     this->mySerial.print(message);
 }
 
-Command SerialCommunication::commandParser(const String &completeMessage)
+Command SerialCommunication::commandParser(const String &message)
 {
     Command command;
 
+    String completeMessage = message.substring(message.indexOf('/'));
     String type = completeMessage.substring(0, 2);
-    String text = completeMessage.substring(2);
+    String msg = completeMessage.substring(2);
+    String textAndValue = msg.substring(0, msg.indexOf('&'));
+    String text = "";
+    String value = "";
+
+    String chatId = "";
+    if (msg.indexOf('&') > 0)
+    {
+        chatId = msg.substring(msg.indexOf('&') + 1);
+    }
+
+    if (type == "/i" && textAndValue.indexOf('=') > 0)
+    {
+        text = textAndValue.substring(0, msg.indexOf('='));
+        value = textAndValue.substring(msg.indexOf('=') + 1);
+    }
+    else 
+    {
+        text = textAndValue;
+    }
+    
 
 #ifdef DEBUG
     Serial.println("RECEIVED");
     Serial.println(completeMessage);
     Serial.println(type);
     Serial.println(text);
+    Serial.println(chatId);
 #endif
 
     if (type.charAt(0) == '/')
@@ -60,6 +82,8 @@ Command SerialCommunication::commandParser(const String &completeMessage)
         command.isValid = true;
         command.commandType = type.charAt(1);
         command.commandText = text;
+        command.commandValue = value;
+        command.chatId = chatId;
     }
     else
     {

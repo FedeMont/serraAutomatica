@@ -10,19 +10,17 @@
 
 // #define BOT_TOKEN "5054228318:AAEY4d4M9VQMujE3A-zhw_ao8a5ieW746nU"
 
-#define MAXCHATIDS 5
 class BotHandler
 {
 private:
     const String BOT_TOKEN = "5054228318:AAEY4d4M9VQMujE3A-zhw_ao8a5ieW746nU";
     const String BOT_CONNECTION_PSW = "GreenHouseProject2022";
     // String chat_ids[2] = {"9202122", "658340861"};
-    String chatIds[MAXCHATIDS];
-    int trying_chatIds_number = 0;
-    String permittedChatIds[MAXCHATIDS];
-    int permitted_chatIds_number = 0;
+    String logginChatId = "";
+    String permittedChatId = "";
 
     String botCommands;
+    String commandsList;
 
     SerialCommunication *mySerial;
     State *mspState;
@@ -47,7 +45,7 @@ public:
     UniversalTelegramBot bot;
 
     BotHandler(WiFiClientSecure &);
-    BotHandler(const String &, WiFiClientSecure &, String[]);
+    BotHandler(const String &, WiFiClientSecure &, String);
     ~BotHandler();
 
     void setCommands();
