@@ -14,10 +14,8 @@
 class BotHandler
 {
 private:
-    UniversalTelegramBot bot;
-
     const String BOT_TOKEN = "5054228318:AAEY4d4M9VQMujE3A-zhw_ao8a5ieW746nU";
-    const String BOT_CONNECTION_PSW = "GreenHouseProject2022"
+    const String BOT_CONNECTION_PSW = "GreenHouseProject2022";
     // String chat_ids[2] = {"9202122", "658340861"};
     String chatIds[MAXCHATIDS];
     int trying_chatIds_number = 0;
@@ -34,7 +32,7 @@ private:
 
     bool shouldSetTime = false;
 
-    bool isIdPermitted(String);
+    bool isIdPermitted(String, bool);
 
     int getUpdates();
     void handleNewMessages(int, bool);
@@ -46,6 +44,8 @@ private:
     void help(String);
 
 public:
+    UniversalTelegramBot bot;
+
     BotHandler(WiFiClientSecure &);
     BotHandler(const String &, WiFiClientSecure &, String[]);
     ~BotHandler();

@@ -168,7 +168,7 @@ void BotHandler::handleNewMessages(int newMessages, bool isConnected)
                 { // user not loggin in yet
                     if (this->trying_chatIds_number < MAXCHATIDS)
                     {
-                        this.chatIds[this->trying_chatIds_number++] = chatId;
+                        this->chatIds[this->trying_chatIds_number++] = chatId;
                     }
                     else
                     {

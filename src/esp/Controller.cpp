@@ -134,11 +134,11 @@ void Controller::readFromMSP(const String &msg)
             {
                 if (this->state == State_AUTOMATIC)
                 {
-                    this->botHandler->setAutomatic();
+                    this->botHandler->setAutomatic(command.commandText);
                 }
                 else
                 {
-                    this->botHandler->setManual();
+                    this->botHandler->setManual(command.commandText);
                 }
 
                 this->hasReceivedM = false;
