@@ -38,17 +38,22 @@ public:
     void chooseState(State);
     void chooseTime(int, int[]);
     void resetHomeScreenFlags();
-    void homeScreen(String, bool, DayCycle, float, float, bool);
+    void homeScreen(State, String, bool, DayCycle, float, float, bool);
     
     int calculateTextSize(String);
     int *getScreenSize();
 
 private:
+    uint8_t halfScreenY;
+    uint8_t halfScreenX;
+    
     DayCycle previousDayCycle;
     Screen_HX8353E myScreen;
     bool wateringFlag;
 
     Action previousSelectedAction;
+
+    State previousState;
 
     long timer_start;
 };

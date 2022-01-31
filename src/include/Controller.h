@@ -65,12 +65,18 @@ private:
     void sendTemperatureState();
     void sendFanState(const String &);
 
+    void manualToggleLight();
+    void manualToggleWater(const String &);
+    void manualToggleFan();
+
     void manualChooseState(Action);
     void changeState(State);
     void chooseTime(Action);
     void home();
     void manualStart(Action);
     void automaticStart();
+
+    bool isManualBoard;
 
     bool isConnectedToESP;
 

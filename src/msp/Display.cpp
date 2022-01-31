@@ -18,6 +18,10 @@ Display::Display()
 
     this->previousDayCycle = DayCycle_NONSET;
     this->previousSelectedAction = Action_NONE;
+    this->previousState = State_NONE;
+
+    this->halfScreenY = 0;
+    this->halfScreenX = 0;
 
     this->wateringFlag = true;
 }
@@ -30,6 +34,9 @@ void Display::begin()
     this->myScreen.setOrientation(0);
     this->myScreen.setFontSize(this->myScreen.fontMax());
     this->myScreen.clear(blackColour);
+
+    this->halfScreenY = (this->getScreenSize()[1] - this->myScreen.fontSizeY()) / 2;
+    this->halfScreenX = (this->getScreenSize()[0] - this->myScreen.fontSizeX()) / 2;
 
     this->timer_start = millis();
 }
@@ -164,13 +171,23 @@ void Display::resetHomeScreenFlags() {
     this->wateringFlag = true;
 }
 
-void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle, float humidity, float temperature, bool shouldWatering)
+void Display::homeScreen(State state, String time, bool isMinutePassed, DayCycle dayCycle, float humidity, float temperature, bool shouldWatering)
 {
     if (dayCycle != this->previousDayCycle)
     {
         this->drawRectangle(this->myScreen.fontSizeX(), this->myScreen.fontSizeY(), 25, 25, blackColour, true);
         this->drawImage((dayCycle == DayCycle_DAY) ? sun : moon, this->myScreen.fontSizeX(), this->myScreen.fontSizeY());
         this->previousDayCycle = dayCycle;
+    }
+
+    if (state != previousState)
+    {
+        String stateText = (state == State_AUTOMATIC)? "Auto" : "Manual";
+        int textSize = this->calculateTextSize("Manual");
+
+        this->drawRectangle((this->halfScreenX - textSize/2), this->myScreen.fontSizeY(), (this->halfScreenX + textSize/2), this->myScreen.fontSizeY(), blackColour, true);
+        this->write((this->halfScreenX - textSize/2), this->myScreen.fontSizeY(), stateText, grayColour);
+        this->previousState = state;
     }
 
     if (isMinutePassed)
@@ -180,15 +197,13 @@ void Display::homeScreen(String time, bool isMinutePassed, DayCycle dayCycle, fl
 
     if (millis() - this->timer_start > 1000)
     {
-        uint8_t halfScreenY = (this->getScreenSize()[1] - this->myScreen.fontSizeY()) / 2;
-
         String tempText = "Temperature: " + String(temperature, 2) + "C";
-        this->drawRectangle(0, (halfScreenY - this->myScreen.fontSizeY()), this->getScreenSize()[0], this->myScreen.fontSizeY(), blackColour, true);
-        this->write((this->getScreenSize()[0] - this->calculateTextSize(tempText)) / 2, halfScreenY - this->myScreen.fontSizeY(), tempText, redColour);
+        this->drawRectangle(0, (this->halfScreenY - this->myScreen.fontSizeY()), this->getScreenSize()[0], this->myScreen.fontSizeY(), blackColour, true);
+        this->write((this->getScreenSize()[0] - this->calculateTextSize(tempText)) / 2, this->halfScreenY - this->myScreen.fontSizeY(), tempText, redColour);
 
         String humidityText = "Soil hum.: " + String(humidity, 2) + "%";
-        this->drawRectangle(0, (halfScreenY + this->myScreen.fontSizeY()), this->getScreenSize()[0], this->myScreen.fontSizeY(), blackColour, true);
-        this->write((this->getScreenSize()[0] - this->calculateTextSize(humidityText)) / 2, halfScreenY + this->myScreen.fontSizeY(), humidityText, whiteColour);
+        this->drawRectangle(0, (this->halfScreenY + this->myScreen.fontSizeY()), this->getScreenSize()[0], this->myScreen.fontSizeY(), blackColour, true);
+        this->write((this->getScreenSize()[0] - this->calculateTextSize(humidityText)) / 2, this->halfScreenY + this->myScreen.fontSizeY(), humidityText, whiteColour);
 
         this->timer_start = millis();
     }
