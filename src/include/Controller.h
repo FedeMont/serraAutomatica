@@ -23,24 +23,23 @@ public:
     Controller();
     ~Controller();
 
+    bool hasConnectionTimedOut;
+    SerialCommunication mySerial;
+
 #ifdef Energia_h
     void begin(Display *, Navigator *, MyClock *, SoilSensor *, TemperatureSensor *);
     void readFromESP(const String&);
+
+    void connectionTimeOut();
 #else
     void begin(BotHandler *, WiFiConfiguration *, NTPClient *);
     void readFromMSP(const String&);
-    String getTime();
+
 #endif
-    void setDefaultValues();
-    void start();
-    void connectionTimeOut();
-
-    bool hasConnectionTimedOut;
     bool getConnectionState();
-    SerialCommunication mySerial;
-private:
-    void threeWayHandShake(const String &);
 
+    void start();
+private:
 #ifdef Energia_h
     Display *display;
     Navigator *navigator;
@@ -48,11 +47,25 @@ private:
     SoilSensor *soilSensor;
     TemperatureSensor *temperatureSensor;
 
-    // State state;
-    // State previousState;
-    // Action previousSelectedAction;
-
     bool firstTimePowerOn;
+    bool isConnectedToESP;
+
+    bool isMinutePassed; // true for first clock write
+    bool shouldWatering;
+    bool shouldLight;
+    bool shouldFan;
+
+    bool isWaterAuto;
+    bool isLightAuto;
+    bool isFanAuto;
+
+    int waterCounter;
+    int lightCounter;
+    int fanCounter;
+
+    bool hasSentDate;
+
+    long wateringTimer;
 
     void wait();
     void sendEndMessage(const String &);
@@ -74,39 +87,21 @@ private:
     // void manualChooseState(Action);
     // void changeState(State);
     void chooseTime(Action);
-    void home();
     void automaticStart(Action);
-
-    bool isConnectedToESP;
-
-    bool isMinutePassed; // true for first clock write
-    bool shouldWatering;
-    bool shouldLight;
-    bool shouldFan;
-
-    bool isWaterAuto;
-    bool isLightAuto;
-    bool isFanAuto;
-
-    int waterCounter;
-    int lightCounter;
-    int fanCounter;
-
-    bool hasSentDate;
-
-    long wateringTimer;
 #else
     BotHandler *botHandler;
     WiFiConfiguration *wifiConfiguration;
     NTPClient *timeAndDateClient;
 
-    String infoMessage;
-    State state;
-
-    void stateMsgParser(Command);    
-
     bool isConnectedToMSP;
+    String infoMessage;
+
+    String getTime(); 
+    void stateMsgParser(Command);   
+
 #endif
+
+    void threeWayHandShake(const String &);
 };
 
 #endif

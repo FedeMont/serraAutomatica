@@ -9,6 +9,7 @@ SerialCommunication::~SerialCommunication()
 {
 }
 
+// public
 void SerialCommunication::flush() {
     while (Serial1.available() > 0) {
         char t = Serial1.read();
@@ -46,7 +47,6 @@ Command SerialCommunication::commandParser(const String &message) {
     {
         text = msg;
     }
-    
 
 #ifdef DEBUG
     Serial.println("RECEIVED");

@@ -3,15 +3,6 @@
 
 Controller::Controller()
 {
-    this->setDefaultValues();
-}
-
-Controller::~Controller()
-{
-}
-
-void Controller::setDefaultValues()
-{
     this->firstTimePowerOn = true;
 
     this->hasConnectionTimedOut = false;
@@ -33,27 +24,11 @@ void Controller::setDefaultValues()
     this->hasSentDate = false;
 }
 
-void Controller::threeWayHandShake(const String &text)
+Controller::~Controller()
 {
-    if (text == "START")
-    {
-        this->isConnectedToESP = false;
-        this->mySerial.send("/sSTART2");
-    }
-    else if (text == "STARTACK")
-    {
-#ifdef DEBUG
-        Serial.println("Connected to ESP");
-#endif
-        this->isConnectedToESP = true;
-    }
 }
 
-bool Controller::getConnectionState()
-{
-    return this->isConnectedToESP;
-}
-
+// public
 void Controller::begin(Display *display, Navigator *navigator, MyClock *myClock, SoilSensor *soilSensor, TemperatureSensor *temperatureSensor)
 {
     Serial.begin(115200);
@@ -70,10 +45,158 @@ void Controller::begin(Display *display, Navigator *navigator, MyClock *myClock,
     this->temperatureSensor->begin();
 }
 
+void Controller::readFromESP(const String &msg)
+{
+    Command command = this->mySerial.commandParser(msg);
+
+    if (command.isValid)
+    {
+        switch (command.commandType)
+        {
+        case 's':
+        { // start
+#ifdef DEBUG
+            Serial.print("start: ");
+            Serial.println(command.commandText);
+#endif
+            this->threeWayHandShake(command.commandText);
+        }
+        break;
+        case 'd':
+        { // date
+#ifdef DEBUG
+            Serial.print("date: ");
+            Serial.println(command.commandText);
+            Serial.println(command.chatId);
+            Serial.println(this->hasSentDate);
+#endif
+            this->myClock->saveTime(command.commandText);
+            this->isMinutePassed = true;
+            this->display->resetHomeScreenFlags();
+            if (this->hasSentDate)
+            {
+                this->mySerial.send("/mautomatic&" + command.chatId);
+                this->firstTimePowerOn = false;
+                this->hasSentDate = false;
+            }
+        }
+        break;
+        case 'c':
+        { // command
+#ifdef DEBUG
+            Serial.print("command: ");
+            Serial.println(command.commandText);
+            Serial.println(command.chatId);
+#endif
+            if (command.commandText == "automatic")
+            {
+                this->display->resetHomeScreenFlags();
+                this->isMinutePassed = true;
+                this->mySerial.send("/ddate&" + command.chatId);
+                this->isLightAuto = true;
+                this->isWaterAuto = true;
+                this->isFanAuto = true;
+                this->hasSentDate = true;
+            }
+            else if (command.commandText == "state")
+            {
+                this->sendState(command.chatId);
+            }
+            else if (command.commandText == "togglelight")
+            {
+                this->manualToggleLight();
+                this->sendLightState(command.chatId);
+            }
+            else if (command.commandText == "togglewater")
+            {
+                this->manualToggleWater(command.chatId);
+                this->sendWateringState(command.chatId);
+            }
+            else if (command.commandText == "togglefan")
+            {
+                this->manualToggleFan();
+                this->sendFanState(command.chatId);
+            }
+        }
+        break;
+        case 'i':
+        {
+#ifdef DEBUG
+            Serial.print("info: ");
+            Serial.println(command.commandText);
+            Serial.println(command.chatId);
+#endif
+        }
+        default:
+            break;
+        }
+    }
+}
+
+void Controller::connectionTimeOut()
+{
+    this->hasConnectionTimedOut = true;
+    this->display->clear();
+}
+
+bool Controller::getConnectionState()
+{
+    return this->isConnectedToESP;
+}
+
+void Controller::start()
+{
+    Action action = this->navigator->getAction();
+
+    if (!this->hasConnectionTimedOut)
+    {
+        if (!this->getConnectionState())
+        {
+            this->display->connecting();
+        }
+        else
+        {
+            if (this->firstTimePowerOn)
+            {
+                this->display->clear();
+                this->mySerial.send("/ddate");
+                this->hasSentDate = true;
+            }
+            else
+            {
+                this->automaticStart(action);
+            }
+        }
+    }
+    else
+    {
+        if (!this->myClock->isTimeSaved)
+        {
+            if (action == Action_SELECT)
+            {
+                this->myClock->saveTime();
+                this->display->clear();
+            }
+            else
+            {
+                this->chooseTime(action);
+            }
+        }
+        else
+        {
+            this->automaticStart(action);
+        }
+    }
+
+    serialEventRun1();
+}
+
+// private
 void Controller::wait()
 {
     long timer = millis();
-    while (millis() - timer < 500);
+    while (millis() - timer < 500)
+        ;
 }
 
 void Controller::sendEndMessage(const String &chatId)
@@ -102,7 +225,7 @@ void Controller::sendState(const String &chatId)
     this->wait();
     this->sendFanState("");
     this->wait();
-    
+
     this->sendEndMessage(chatId);
 }
 
@@ -137,9 +260,10 @@ void Controller::sendLightState(const String &chatId)
         this->mySerial.send("/ilights=" + String((this->shouldLight) ? "on" : "off"));
         this->wait();
         this->sendEndMessage(chatId);
-    }else{
+    }
+    else
+    {
         this->mySerial.send("/ilight=" + String((this->shouldLight) ? "on" : "off"));
-
     }
 }
 
@@ -152,10 +276,12 @@ void Controller::sendWateringState(const String &chatId)
 {
     if (chatId != "")
     {
-        this->mySerial.send("/iwaters=" + String((this->shouldWatering == false) ? "not ": ""));
+        this->mySerial.send("/iwaters=" + String((this->shouldWatering == false) ? "not " : ""));
         this->wait();
         this->sendEndMessage(chatId);
-    }else{
+    }
+    else
+    {
         this->mySerial.send("/iwater=" + String((this->shouldWatering == false) ? "not " : ""));
     }
 }
@@ -172,89 +298,14 @@ void Controller::sendFanState(const String &chatId)
         this->mySerial.send("/ifans=" + String((this->shouldFan) ? "spinning" : "off"));
         this->wait();
         this->sendEndMessage(chatId);
-    }else{
+    }
+    else
+    {
         this->mySerial.send("/ifan=" + String((this->shouldFan) ? "spinning" : "off"));
     }
 }
 
-// void Controller::manualChooseState(Action action)
-// {
-//     switch (action)
-//     {
-//     default:
-// #ifdef DEBUG
-//         Serial.print("Action: ");
-//         Serial.println(int(action));
-//         Serial.print("Previous action: ");
-//         Serial.println(int(this->previousSelectedAction));
-//         Serial.print("State: ");
-//         Serial.println(int(this->state));
-// #endif
-//     case Action_NONE:
-//         switch (this->previousSelectedAction)
-//         {
-//         case Action_NONE:
-//             this->previousSelectedAction = Action_UP;
-//             this->previousState = State_MANUAL;
-//             this->display->chooseState(this->previousState);
-//             ;
-//             break;
-//         default:
-//             break;
-//         }
-//         break;
-//     case Action_UP:
-//         this->previousSelectedAction = Action_UP;
-//         this->previousState = State_MANUAL;
-//         this->display->chooseState(this->previousState);
-//         break;
-//     case Action_DOWN:
-//         this->previousSelectedAction = Action_DOWN;
-//         this->previousState = State_AUTOMATIC;
-//         this->display->chooseState(this->previousState);
-//         break;
-//     case Action_SELECT:
-//         if (this->previousSelectedAction != Action_NONE)
-//         {
-//             if (this->previousState == State_AUTOMATIC)
-//             {
-//                 this->mySerial.send("/d");
-//                 this->hasSentDate = true;
-//             }
-//             else
-//             {
-//                 this->changeState(State_MANUAL);
-//                 this->isManualBoard = true;
-//             }
-//         }
-//         break;
-//     }
-// }
-
-// void Controller::changeState(State state)
-// {
-//     if (this->state != state)
-//     {
-//         this->isMinutePassed = true;
-// 
-//         this->hasSentDate = false;
-// 
-//         this->previousState = State_NONE;
-//         this->previousSelectedAction = Action_NONE;
-// 
-//         this->state = state;
-//         this->display->resetHomeScreenFlags();
-//         this->display->clear();
-//     }
-// }
-
-void Controller::chooseTime(Action action)
-{
-    this->display->chooseTime(this->myClock->selectedDigit, this->myClock->digits);
-    this->myClock->chooseTime(action);
-}
-
-void Controller::manualToggleLight() 
+void Controller::manualToggleLight()
 {
     this->isLightAuto = false;
     if (!this->shouldLight)
@@ -319,93 +370,10 @@ void Controller::manualToggleFan()
     this->shouldFan = !this->shouldFan;
 }
 
-void Controller::readFromESP(const String &msg)
+void Controller::chooseTime(Action action)
 {
-    Command command = this->mySerial.commandParser(msg);
-
-    if (command.isValid)
-    {
-        switch (command.commandType)
-        {
-        case 's':
-        { // start
-#ifdef DEBUG
-            Serial.print("start: ");
-            Serial.println(command.commandText);
-#endif
-            this->threeWayHandShake(command.commandText);
-        }
-        break;
-        case 'd':
-        { // date
-#ifdef DEBUG
-            Serial.print("date: ");
-            Serial.println(command.commandText);
-            Serial.println(command.chatId);
-            Serial.println(this->hasSentDate);
-#endif
-            this->myClock->saveTime(command.commandText);
-            this->isMinutePassed = true;
-            this->display->resetHomeScreenFlags();
-            if (this->hasSentDate)
-            {
-                // this->changeState(State_AUTOMATIC);
-                this->mySerial.send("/mautomatic&" + command.chatId);
-                this->firstTimePowerOn = false;
-                this->hasSentDate = false;
-            }
-        }
-        break;
-        case 'c':
-        { // command
-#ifdef DEBUG
-            Serial.print("command: ");
-            Serial.println(command.commandText);
-            Serial.println(command.chatId);
-#endif
-            if (command.commandText == "automatic")
-            {
-                this->display->resetHomeScreenFlags();
-                this->isMinutePassed = true;
-                this->mySerial.send("/ddate&" + command.chatId);
-                this->isLightAuto = true;
-                this->isWaterAuto = true;
-                this->isFanAuto = true;
-                this->hasSentDate = true;
-            }
-            else if (command.commandText == "state")
-            {
-                this->sendState(command.chatId);
-            }
-            else if (command.commandText == "togglelight")
-            {
-                this->manualToggleLight();
-                this->sendLightState(command.chatId);
-            }
-            else if (command.commandText == "togglewater")
-            {
-                this->manualToggleWater(command.chatId);
-                this->sendWateringState(command.chatId);
-            }
-            else if (command.commandText == "togglefan")
-            {
-                this->manualToggleFan();
-                this->sendFanState(command.chatId);
-            }
-        }
-        break;
-        case 'i':
-        {
-#ifdef DEBUG
-            Serial.print("info: ");
-            Serial.println(command.commandText);
-            Serial.println(command.chatId);
-#endif
-        }
-        default:
-            break;
-        }
-    }
+    this->display->chooseTime(this->myClock->selectedDigit, this->myClock->digits);
+    this->myClock->chooseTime(action);
 }
 
 void Controller::automaticStart(Action action)
@@ -420,7 +388,8 @@ void Controller::automaticStart(Action action)
         Serial.println("Water counter: " + String(this->waterCounter));
 #endif
 
-        if (this->waterCounter == 0) {
+        if (this->waterCounter == 0)
+        {
             this->isWaterAuto = true;
             this->display->resetHomeScreenFlags();
 #ifdef DEBUG
@@ -431,7 +400,7 @@ void Controller::automaticStart(Action action)
             this->manualToggleWater();
     }
 
-    if(this->isWaterAuto)
+    if (this->isWaterAuto)
     {
         this->shouldWatering = this->soilSensor->shouldWatering(soilSensorValue);
         if (this->shouldWatering)
@@ -462,9 +431,9 @@ void Controller::automaticStart(Action action)
         else
             this->manualToggleFan();
     }
-    
+
     float temperatureSensorValue = this->temperatureSensor->readDiet();
-    if(this->isFanAuto)
+    if (this->isFanAuto)
     {
         this->shouldFan = this->temperatureSensor->shouldFan(temperatureSensorValue);
         if (this->shouldFan)
@@ -495,7 +464,7 @@ void Controller::automaticStart(Action action)
         else
             this->manualToggleLight();
     }
-    
+
     if (this->isLightAuto)
     {
         this->shouldLight = (this->myClock->dayCycle == DayCycle_DAY);
@@ -508,14 +477,16 @@ void Controller::automaticStart(Action action)
             this->navigator->lightOff();
         }
     }
-    
-    this->display->homeScreen(this->getConnectionState(), this->myClock->getTimeAsString(), this->isMinutePassed, (this->shouldLight? DayCycle_DAY : DayCycle_NIGHT), soilSensorPercentage, temperatureSensorValue, this->shouldWatering, this->shouldFan, this->isLightAuto, this->isWaterAuto, this->isFanAuto);
+
+    this->display->homeScreen(this->getConnectionState(), this->myClock->getTimeAsString(), this->isMinutePassed, (this->shouldLight ? DayCycle_DAY : DayCycle_NIGHT), soilSensorPercentage, temperatureSensorValue, this->shouldWatering, this->shouldFan, this->isLightAuto, this->isWaterAuto, this->isFanAuto);
 
     this->isMinutePassed = this->myClock->isMinutePassed(); // check if minute is really passed
     this->myClock->clock(this->isMinutePassed);
 
-    if (!this->isWaterAuto && this->shouldWatering) {
-        if (millis() - this->wateringTimer > 180000) { // 3 minutes = 180000
+    if (!this->isWaterAuto && this->shouldWatering)
+    {
+        if (millis() - this->wateringTimer > 180000)
+        { // 3 minutes = 180000
             this->shouldWatering = false;
             this->navigator->waterOff();
 #ifdef DEBUG
@@ -525,55 +496,18 @@ void Controller::automaticStart(Action action)
     }
 }
 
-void Controller::connectionTimeOut()
+void Controller::threeWayHandShake(const String &text)
 {
-    this->hasConnectionTimedOut = true;
-    this->display->clear();
-}
-
-void Controller::start()
-{
-    Action action = this->navigator->getAction();
-
-    if (!this->hasConnectionTimedOut)
+    if (text == "START")
     {
-        if (!this->getConnectionState())
-        {
-            this->display->connecting();
-        }
-        else
-        {
-            if (this->firstTimePowerOn)
-            {
-                this->display->clear();
-                this->mySerial.send("/ddate");
-                this->hasSentDate = true;
-            }
-            else 
-            {
-                this->automaticStart(action);
-            }
-        }
+        this->isConnectedToESP = false;
+        this->mySerial.send("/sSTART2");
     }
-    else
+    else if (text == "STARTACK")
     {
-        if (!this->myClock->isTimeSaved)
-        {
-            if (action == Action_SELECT)
-            {
-                this->myClock->saveTime();
-                this->display->clear();
-            }
-            else
-            {
-                this->chooseTime(action);
-            }
-        }
-        else
-        {
-            this->automaticStart(action);
-        }
+#ifdef DEBUG
+        Serial.println("Connected to ESP");
+#endif
+        this->isConnectedToESP = true;
     }
-
-    serialEventRun1();
 }

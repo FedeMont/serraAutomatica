@@ -1,41 +1,18 @@
-// #include <Arduino.h>
 #include "Controller.h"
 
 Controller::Controller()
 {
-    this->setDefaultValues();
+    this->hasConnectionTimedOut = false;
+    this->isConnectedToMSP = false;
+
+    this->infoMessage = "";
 }
 
 Controller::~Controller()
 {
 }
 
-void Controller::setDefaultValues()
-{
-    this->hasConnectionTimedOut = false;
-    this->isConnectedToMSP = false;
-
-    this->infoMessage = "";
-    this->state = State_NONE;
-}
-
-void Controller::threeWayHandShake(const String &text)
-{
-    if (text == "START2")
-    {
-        this->isConnectedToMSP = true;
-#ifdef DEBUG
-        Serial.println("Connected to MSP");
-#endif
-        this->mySerial.send("/sSTARTACK");
-    }
-}
-
-bool Controller::getConnectionState()
-{
-    return this->isConnectedToMSP;
-}
-
+// public
 void Controller::begin(BotHandler *botHandler, WiFiConfiguration *wiFi, NTPClient *timeClient)
 {
     Serial.begin(115200);
@@ -46,75 +23,12 @@ void Controller::begin(BotHandler *botHandler, WiFiConfiguration *wiFi, NTPClien
     this->wifiConfiguration = wiFi;
     this->timeAndDateClient = timeClient;
 
-    this->botHandler->begin(&this->mySerial, &this->state);
+    this->botHandler->begin(&this->mySerial);
     this->wifiConfiguration->connect();
     this->timeAndDateClient->begin();
 
     this->mySerial.send("/sSTART");
     this->botHandler->setCommands();
-}
-
-String Controller::getTime()
-{
-    this->timeAndDateClient->update();
-    return this->timeAndDateClient->getFormattedTime().substring(0, 5);
-}
-
-
-void Controller::stateMsgParser(Command command) 
-{
-    if (command.commandText == "mode")
-    {
-        this->infoMessage += "The green house is in " + command.commandValue + " mode.\n\n";
-    }
-    else if (command.commandText == "time") 
-    {
-        this->infoMessage += "It's " + command.commandValue + " ";
-    }
-    else if (command.commandText == "times") 
-    {
-        this->infoMessage += "Time set to " + command.commandValue + ".";
-    }
-    else if (command.commandText == "day") 
-    {
-        this->infoMessage += "and the " + command.commandValue + ", ahem... I mean ";
-    }
-    else if (command.commandText == "light") 
-    {
-        this->infoMessage += "the light is " + command.commandValue + ".\n";
-    }
-    else if (command.commandText == "lights") 
-    {
-        this->infoMessage += "The light is " + command.commandValue + ".";
-    }
-    else if (command.commandText == "soil") 
-    {
-        this->infoMessage += "Soil humdity is at " + command.commandValue + "%, and ";
-    }
-    else if (command.commandText == "water") 
-    {
-        this->infoMessage += "the plant is " + command.commandValue + "being watered.\n";
-    }
-    else if (command.commandText == "waters") 
-    {
-        this->infoMessage += "The plant is " + command.commandValue + "being watered.";
-    }
-    else if (command.commandText == "wateron") 
-    {
-        this->infoMessage += "Water will be open for 3 minutes.";
-    }
-    else if (command.commandText == "temperature")
-    {
-        this->infoMessage += "The temperature sensor is measuring " + command.commandValue + "°C, so ";
-    }
-    else if (command.commandText == "fan") 
-    {
-        this->infoMessage += "the fan is " + command.commandValue + ".";
-    }
-    else if (command.commandText == "fan") 
-    {
-        this->infoMessage += "The fan is " + command.commandValue + ".";
-    }
 }
 
 void Controller::readFromMSP(const String &msg)
@@ -162,14 +76,8 @@ void Controller::readFromMSP(const String &msg)
 #endif
             if (command.commandText == "automatic")
             {
-                this->state = State_AUTOMATIC;
                 this->botHandler->setAutomatic(command.chatId);
             }
-            // else
-            // {
-            //     this->state = State_MANUAL;
-            //     this->botHandler->setManual(command.chatId);
-            // }
         }
         break;
         case 'i':
@@ -201,7 +109,87 @@ void Controller::readFromMSP(const String &msg)
     }
 }
 
+bool Controller::getConnectionState()
+{
+    return this->isConnectedToMSP;
+}
+
 void Controller::start()
 {
     this->botHandler->start(!this->hasConnectionTimedOut && this->isConnectedToMSP);
+}
+
+// private
+String Controller::getTime()
+{
+    this->timeAndDateClient->update();
+    return this->timeAndDateClient->getFormattedTime().substring(0, 5);
+}
+
+void Controller::stateMsgParser(Command command)
+{
+    if (command.commandText == "mode")
+    {
+        this->infoMessage += "The green house is in " + command.commandValue + " mode.\n\n";
+    }
+    else if (command.commandText == "time")
+    {
+        this->infoMessage += "It's " + command.commandValue + " ";
+    }
+    else if (command.commandText == "times")
+    {
+        this->infoMessage += "Time set to " + command.commandValue + ".";
+    }
+    else if (command.commandText == "day")
+    {
+        this->infoMessage += "and the " + command.commandValue + ", ahem... I mean ";
+    }
+    else if (command.commandText == "light")
+    {
+        this->infoMessage += "the light is " + command.commandValue + ".\n";
+    }
+    else if (command.commandText == "lights")
+    {
+        this->infoMessage += "The light is " + command.commandValue + ".";
+    }
+    else if (command.commandText == "soil")
+    {
+        this->infoMessage += "Soil humdity is at " + command.commandValue + "%, and ";
+    }
+    else if (command.commandText == "water")
+    {
+        this->infoMessage += "the plant is " + command.commandValue + "being watered.\n";
+    }
+    else if (command.commandText == "waters")
+    {
+        this->infoMessage += "The plant is " + command.commandValue + "being watered.";
+    }
+    else if (command.commandText == "wateron")
+    {
+        this->infoMessage += "Water will be open for 3 minutes.";
+    }
+    else if (command.commandText == "temperature")
+    {
+        this->infoMessage += "The temperature sensor is measuring " + command.commandValue + "°C, so ";
+    }
+    else if (command.commandText == "fan")
+    {
+        this->infoMessage += "the fan is " + command.commandValue + ".";
+    }
+    else if (command.commandText == "fans")
+    {
+        this->infoMessage += "The fan is " + command.commandValue + ".";
+    }
+}
+
+void Controller::threeWayHandShake(const String &text)
+{
+    if (text == "START2")
+    {
+        this->isConnectedToMSP = true;
+#ifdef DEBUG
+        Serial.println("Connected to MSP");
+#endif
+        this->mySerial.send("/sSTARTACK");
+    }
 }

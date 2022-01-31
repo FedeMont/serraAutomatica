@@ -10,6 +10,7 @@ WiFiConfiguration::~WiFiConfiguration()
 {
 }
 
+// public
 void WiFiConfiguration::connect()
 {
     // Connect to Wi-Fi

@@ -8,15 +8,14 @@
 
 class WiFiConfiguration
 {
-private:
-    const char *ssid;
-    const char *password;
-
 public:
     WiFiConfiguration(const char *, const char *);
     ~WiFiConfiguration();
 
     void connect();
+private:
+    const char *ssid;
+    const char *password;
 };
 
 #endif

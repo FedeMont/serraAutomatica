@@ -6,6 +6,13 @@
 
 class SoilSensor
 {
+public:
+    SoilSensor(/* args */);
+    ~SoilSensor();
+
+    int readSensor();
+    bool shouldWatering(int);
+    float valueToPercentage(int);
 private:
     uint8_t pin;
 
@@ -15,14 +22,6 @@ private:
     int wetThreshold;
 
     bool lastShouldWatering;
-
-public:
-    SoilSensor(/* args */);
-    ~SoilSensor();
-
-    int readSensor();
-    bool shouldWatering(int);
-    float valueToPercentage(int);
 };
 
 #endif

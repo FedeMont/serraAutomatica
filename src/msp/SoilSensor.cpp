@@ -15,12 +15,13 @@ SoilSensor::~SoilSensor()
 {
 }
 
+// public
 int SoilSensor::readSensor()
 {
     int value = analogRead(this->pin);
-// #ifdef DEBUG
-//     Serial.println(value);
-// #endif
+#ifdef DEBUG
+    Serial.println("Soil: " + String(value));
+#endif
     return value;
 }
 
@@ -31,14 +32,14 @@ bool SoilSensor::shouldWatering(int sensorValue)
     else if (sensorValue < this->wetThreshold)
         this->lastShouldWatering = false;
 
-// #ifdef DEBUG
-//     Serial.print("lastShouldWatering: ");
-//     Serial.println(this->lastShouldWatering);
-// #endif
+#ifdef DEBUG
+    Serial.println("lastShouldWatering: " + String(this->lastShouldWatering));
+#endif
     return this->lastShouldWatering;
 }
 
-float SoilSensor::valueToPercentage(int value) {
+float SoilSensor::valueToPercentage(int value)
+{
     float percentage = (100 * (float)value) / (float)(this->maxValue - this->minValue);
     return 100.0 - percentage;
 }

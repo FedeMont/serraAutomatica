@@ -16,6 +16,19 @@
 class Display
 {
 public:
+    Display();
+    ~Display();
+
+    void begin();
+
+    void clear();
+
+    void connecting();
+    void chooseTime(int, int[]);
+    void resetHomeScreenFlags();
+    void homeScreen(bool, String, bool, DayCycle, float, float, bool, bool, bool, bool, bool);
+
+private:
     uint16_t blackColour;
     uint16_t whiteColour;
     uint16_t redColour;
@@ -29,25 +42,6 @@ public:
     uint16_t grayColour;
     uint16_t darkGrayColour;
 
-    Display();
-
-    void begin();
-    void clear();
-    void write(int, int, String, uint16_t);
-    void write(int, int, String, int, uint16_t);
-    void drawRectangle(int, int, int, int, uint16_t, bool);
-    void drawImage(tImage, uint16_t, uint16_t);
-    void drawImage(tImage, uint16_t, uint16_t, bool);
-    void connecting();
-    void chooseState(State);
-    void chooseTime(int, int[]);
-    void resetHomeScreenFlags();
-    void homeScreen(bool, String, bool, DayCycle, float, float, bool, bool, bool, bool, bool);
-    
-    int calculateTextSize(String);
-    int *getScreenSize();
-
-private:
     uint8_t screenSizeX;
     uint8_t screenSizeY;
     uint8_t halfScreenY;
@@ -61,12 +55,16 @@ private:
     bool fanFlag;
     bool wateringFlag;
 
-    Action previousSelectedAction;
-
+    bool connectingFlag;
     long timer_start;
-    long timer_dayCycle;
-    long timer_watering;
-    long timer_state;
+
+    int calculateTextSize(String);
+
+    void write(int, int, String, uint16_t);
+    void write(int, int, String, int, uint16_t);
+    void drawRectangle(int, int, int, int, uint16_t, bool);
+    void drawImage(tImage, uint16_t, uint16_t);
+    void drawImage(tImage, uint16_t, uint16_t, bool);
 };
 
 #endif

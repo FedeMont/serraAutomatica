@@ -15,13 +15,6 @@ enum Action
     Action_NONE
 };
 
-enum State
-{
-    State_MANUAL,
-    State_AUTOMATIC,
-    State_NONE
-};
-
 enum DayCycle
 {
     DayCycle_DAY,

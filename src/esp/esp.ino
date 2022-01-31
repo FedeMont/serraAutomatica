@@ -16,8 +16,6 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", 3600, 60000); // https://randomnerd
 X509List cert(TELEGRAM_CERTIFICATE_ROOT);
 WiFiClientSecure client;
 
-// #define MYTZ "CET-1CEST,M3.5.0,M10.5.0/3" // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-
 // Replace with your network credentials
 const char *ssid = "Vodafone-MontagnaGuest";
 const char *password = "MontagnaWiFi";
@@ -34,8 +32,6 @@ long connection_timeout_timer;
 void setup()
 {
 	client.setInsecure();
-	// client.setFingerprint("FC C9 84 21 5D 71 A1 A6 BF 17 C8 3A 8D 5E 8D E3 85 AE A9 11"); //api.telegram.org fingerprint generate from http://www.sha1-online.com/
-	// client.setTrustAnchors(&cert);	  // Add root certificate for api.telegram.org
 	controller.begin(&botHandler, &wifi, &timeClient);
 	connection_timeout_timer = millis();
 

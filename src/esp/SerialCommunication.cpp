@@ -8,6 +8,12 @@ SerialCommunication::~SerialCommunication()
 {
 }
 
+// public
+int SerialCommunication::available()
+{
+    return this->mySerial.available();
+}
+
 void SerialCommunication::flush()
 {
     while (this->available() > 0)
@@ -19,11 +25,6 @@ void SerialCommunication::flush()
 void SerialCommunication::begin(uint32_t baud)
 {
     this->mySerial.begin(baud);
-}
-
-int SerialCommunication::available()
-{
-    return this->mySerial.available();
 }
 
 String SerialCommunication::readStringUntil(const char &terminator)
@@ -63,11 +64,10 @@ Command SerialCommunication::commandParser(const String &message)
         text = textAndValue.substring(0, msg.indexOf('='));
         value = textAndValue.substring(msg.indexOf('=') + 1);
     }
-    else 
+    else
     {
         text = textAndValue;
     }
-    
 
 #ifdef DEBUG
     Serial.println("RECEIVED");

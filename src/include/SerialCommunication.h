@@ -12,18 +12,14 @@
 
 class SerialCommunication
 {
-private:
-#ifndef Energia_h
-    SoftwareSerial mySerial; // ESP8266
-#endif
 public:
     SerialCommunication(/* args */);
     ~SerialCommunication();
 
     void flush();
 #ifndef Energia_h
-    void begin(uint32_t); // ESP8266
     int available();
+    void begin(uint32_t); // ESP8266
     String readStringUntil(const char &);
 #else
     void begin(unsigned long); // MSP
@@ -31,6 +27,10 @@ public:
 
     void send(const String &);
     Command commandParser(const String &);
+private:
+#ifndef Energia_h
+    SoftwareSerial mySerial; // ESP8266
+#endif
 };
 
 #endif

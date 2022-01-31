@@ -7,13 +7,13 @@
 class Navigator
 {
 public:
-    uint8_t joystickX, joystickY, joystickSelect, buttonUp, buttonDown,
-        lightRelay, fanRelay, water;
-
     Navigator();
+    ~Navigator();
 
     void begin();
+
     enum Action getAction();
+    
     void lightOn();
     void lightOff();
     void fanOn();
@@ -22,6 +22,8 @@ public:
     void waterOff();
 
 private:
+    uint8_t joystickX, joystickY, joystickSelect, buttonUp, buttonDown,
+        lightRelay, fanRelay, water;
     long timer_start;
 };
 

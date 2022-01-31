@@ -10,6 +10,16 @@
 
 class TemperatureSensor
 {
+public:
+    TemperatureSensor(/* args */);
+    ~TemperatureSensor();
+
+    void begin();
+
+    float readObject();
+    float readDiet();
+    
+    bool shouldFan(float);
 private:
     Adafruit_TMP006 tmp006;
 
@@ -19,20 +29,6 @@ private:
     float coldThreshold;
 
     bool lastShouldFan;
-
-public:
-    TemperatureSensor(/* args */);
-    ~TemperatureSensor();
-
-    void begin();
-
-    bool shouldFan(float);
-    
-    void printFloat(float value, int places) ;
-
-    float readObject();
-    float readDiet();
-
 };
 
 #endif

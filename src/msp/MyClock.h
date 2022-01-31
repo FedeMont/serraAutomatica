@@ -9,24 +9,26 @@ class MyClock
 public:
     int selectedDigit;
     int digits[4];
-
     bool isTimeSaved;
     DayCycle dayCycle;
 
-    unsigned long time;
-
     MyClock();
+    ~MyClock();
 
     void chooseTime(Action);
     void saveTime();
     void saveTime(const String&);
-    void clock(bool);
-    void setStartTime();
-    bool isMinutePassed();
     String getTimeAsString();
 
+    void clock(bool);
+    bool isMinutePassed();
+
 private:
+    unsigned long time;
+
     long start_time;
+
+    void setStartTime();
 };
 
 #endif

@@ -13,6 +13,11 @@ Navigator::Navigator()
     this->water = 27;
 }
 
+Navigator::~Navigator()
+{
+}
+
+// public
 void Navigator::begin()
 {
     pinMode(this->joystickSelect, INPUT_PULLUP);
@@ -54,13 +59,11 @@ enum Action Navigator::getAction()
 
 void Navigator::lightOn()
 {
-    // this->fanOn();
     digitalWrite(this->lightRelay, HIGH);
 }
 
 void Navigator::lightOff()
 {
-    // this->fanOff();
     digitalWrite(this->lightRelay, LOW);
 }
 

@@ -10,6 +10,11 @@ MyClock::MyClock()
     this->time = 0;
 }
 
+MyClock::~MyClock()
+{
+}
+
+// public
 void MyClock::chooseTime(Action action)
 {
     switch (action)
@@ -89,16 +94,16 @@ void MyClock::chooseTime(Action action)
         break;
     }
 
-// #ifdef DEBUG
-//     Serial.print(this->digits[1]);
-//     Serial.print(this->digits[0]);
-//     Serial.print(":");
-//     Serial.print(this->digits[2]);
-//     Serial.print(this->digits[3]);
-//     Serial.print(" sel: ");
-//     Serial.println(this->selectedDigit);
-//     Serial.println(this->time);
-// #endif
+#ifdef DEBUG
+    Serial.print(this->digits[1]);
+    Serial.print(this->digits[0]);
+    Serial.print(":");
+    Serial.print(this->digits[2]);
+    Serial.print(this->digits[3]);
+    Serial.print(" sel: ");
+    Serial.println(this->selectedDigit);
+    Serial.println(this->time);
+#endif
 }
 
 void MyClock::saveTime()
@@ -113,6 +118,25 @@ void MyClock::saveTime(const String &fromattedTime) // hh:mm
     this->time = (fromattedTime.charAt(4) - '0') + ((fromattedTime.charAt(3) - '0') * 10) + ((fromattedTime.charAt(1) - '0') * 60) + ((fromattedTime.charAt(0) - '0') * 60 * 10);
     this->start_time = millis();
     this->isTimeSaved = true;
+}
+
+String MyClock::getTimeAsString()
+{
+    int hours = this->time / 60;
+    String hoursString = String(hours);
+    if (hours < 10)
+    {
+        hoursString = "0" + hoursString;
+    }
+
+    int minutes = this->time - (hours * 60);
+    String minutesString = String(minutes);
+    if (minutes < 10)
+    {
+        minutesString = "0" + minutesString;
+    }
+
+    return hoursString + ":" + minutesString;
 }
 
 void MyClock::clock(bool isMinutePassed)
@@ -158,11 +182,6 @@ void MyClock::clock(bool isMinutePassed)
     }
 }
 
-void MyClock::setStartTime()
-{
-    this->start_time = millis();
-}
-
 bool MyClock::isMinutePassed()
 {
     if ((this->isTimeSaved) && (millis() - this->start_time >= 60000)) // 1 every minute
@@ -174,21 +193,8 @@ bool MyClock::isMinutePassed()
         return false;
 }
 
-String MyClock::getTimeAsString()
+// private
+void MyClock::setStartTime()
 {
-    int hours = this->time / 60;
-    String hoursString = String(hours);
-    if (hours < 10)
-    {
-        hoursString = "0" + hoursString;
-    }
-
-    int minutes = this->time - (hours * 60);
-    String minutesString = String(minutes);
-    if (minutes < 10)
-    {
-        minutesString = "0" + minutesString;
-    }
-
-    return hoursString + ":" + minutesString;
+    this->start_time = millis();
 }
