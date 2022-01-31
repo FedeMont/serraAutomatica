@@ -165,11 +165,11 @@ void Controller::readFromMSP(const String &msg)
                 this->state = State_AUTOMATIC;
                 this->botHandler->setAutomatic(command.chatId);
             }
-            else
-            {
-                this->state = State_MANUAL;
-                this->botHandler->setManual(command.chatId);
-            }
+            // else
+            // {
+            //     this->state = State_MANUAL;
+            //     this->botHandler->setManual(command.chatId);
+            // }
         }
         break;
         case 'i':

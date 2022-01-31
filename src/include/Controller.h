@@ -48,9 +48,11 @@ private:
     SoilSensor *soilSensor;
     TemperatureSensor *temperatureSensor;
 
-    State state;
-    State previousState;
-    Action previousSelectedAction;
+    // State state;
+    // State previousState;
+    // Action previousSelectedAction;
+
+    bool firstTimePowerOn;
 
     void wait();
     void sendEndMessage(const String &);
@@ -69,14 +71,11 @@ private:
     void manualToggleWater(const String &);
     void manualToggleFan();
 
-    void manualChooseState(Action);
-    void changeState(State);
+    // void manualChooseState(Action);
+    // void changeState(State);
     void chooseTime(Action);
     void home();
-    void manualStart(Action);
-    void automaticStart();
-
-    bool isManualBoard;
+    void automaticStart(Action);
 
     bool isConnectedToESP;
 
@@ -85,7 +84,15 @@ private:
     bool shouldLight;
     bool shouldFan;
 
-    bool hasSendDate;
+    bool isWaterAuto;
+    bool isLightAuto;
+    bool isFanAuto;
+
+    int waterCounter;
+    int lightCounter;
+    int fanCounter;
+
+    bool hasSentDate;
 
     long wateringTimer;
 #else

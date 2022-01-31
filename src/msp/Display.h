@@ -6,7 +6,10 @@
 
 #include "day.h"
 #include "night.h"
+#include "fan.h"
 #include "water.h"
+#include "connection.h"
+#include "notconnection.h"
 
 #include "Types.h"
 
@@ -30,32 +33,40 @@ public:
 
     void begin();
     void clear();
-    int stringLength(String);
     void write(int, int, String, uint16_t);
     void write(int, int, String, int, uint16_t);
     void drawRectangle(int, int, int, int, uint16_t, bool);
     void drawImage(tImage, uint16_t, uint16_t);
+    void drawImage(tImage, uint16_t, uint16_t, bool);
+    void connecting();
     void chooseState(State);
     void chooseTime(int, int[]);
     void resetHomeScreenFlags();
-    void homeScreen(State, String, bool, DayCycle, float, float, bool);
+    void homeScreen(bool, String, bool, DayCycle, float, float, bool, bool, bool, bool, bool);
     
     int calculateTextSize(String);
     int *getScreenSize();
 
 private:
+    uint8_t screenSizeX;
+    uint8_t screenSizeY;
     uint8_t halfScreenY;
     uint8_t halfScreenX;
-    
-    DayCycle previousDayCycle;
+
     Screen_HX8353E myScreen;
+
+    bool previousConnectionState;
+    DayCycle previousDayCycle;
+
+    bool fanFlag;
     bool wateringFlag;
 
     Action previousSelectedAction;
 
-    State previousState;
-
     long timer_start;
+    long timer_dayCycle;
+    long timer_watering;
+    long timer_state;
 };
 
 #endif

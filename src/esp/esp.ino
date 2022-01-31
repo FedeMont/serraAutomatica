@@ -21,6 +21,8 @@ WiFiClientSecure client;
 // Replace with your network credentials
 const char *ssid = "Vodafone-MontagnaGuest";
 const char *password = "MontagnaWiFi";
+// const char *ssid = "FASTWEB-7HSG23";
+// const char *password = "FG9KHU7JNH";
 
 BotHandler botHandler = BotHandler(client);
 WiFiConfiguration wifi(ssid, password);
