@@ -71,6 +71,7 @@ void Controller::readFromESP(const String &msg)
             Serial.println(this->hasSentDate);
 #endif
             this->myClock->saveTime(command.commandText);
+            this->myClock->clock(true, false);
             this->isMinutePassed = true;
             this->display->resetHomeScreenFlags();
             if (this->hasSentDate)
@@ -481,7 +482,7 @@ void Controller::automaticStart(Action action)
     this->display->homeScreen(this->getConnectionState(), this->myClock->getTimeAsString(), this->isMinutePassed, (this->shouldLight ? DayCycle_DAY : DayCycle_NIGHT), soilSensorPercentage, temperatureSensorValue, this->shouldWatering, this->shouldFan, this->isLightAuto, this->isWaterAuto, this->isFanAuto);
 
     this->isMinutePassed = this->myClock->isMinutePassed(); // check if minute is really passed
-    this->myClock->clock(this->isMinutePassed);
+    this->myClock->clock(this->isMinutePassed, true);
 
     if (!this->isWaterAuto && this->shouldWatering)
     {

@@ -20,7 +20,7 @@ public:
     void saveTime(const String&);
     String getTimeAsString();
 
-    void clock(bool);
+    void clock(bool, bool);
     bool isMinutePassed();
 
 private:

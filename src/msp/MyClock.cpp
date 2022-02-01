@@ -139,7 +139,7 @@ String MyClock::getTimeAsString()
     return hoursString + ":" + minutesString;
 }
 
-void MyClock::clock(bool isMinutePassed)
+void MyClock::clock(bool isMinutePassed, bool shouldPassMinute)
 {
     if (this->dayCycle == DayCycle_NONSET)
     {
@@ -155,13 +155,16 @@ void MyClock::clock(bool isMinutePassed)
 
     if (isMinutePassed)
     {
-        if (this->time + 1 == (24 * 60)) // 23:59 + 1 min
+        if (shouldPassMinute)
         {
-            this->time = 0;
-        }
-        else
-        {
-            this->time++;
+            if (this->time + 1 == (24 * 60)) // 23:59 + 1 min
+            {
+                this->time = 0;
+            }
+            else
+            {
+                this->time++;
+            }
         }
 
         if (this->time >= (7 * 60 + 30) && this->time <= (18 * 60 + 30))
