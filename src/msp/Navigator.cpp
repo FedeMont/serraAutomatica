@@ -10,7 +10,7 @@ Navigator::Navigator()
     this->buttonDown = 32;
     this->lightRelay = 19;
     this->fanRelay = 18;
-    this->water = 27;
+    this->waterRelay = 27;
 }
 
 Navigator::~Navigator()
@@ -25,6 +25,7 @@ void Navigator::begin()
     pinMode(this->buttonDown, INPUT_PULLUP);
     pinMode(this->lightRelay, OUTPUT);
     pinMode(this->fanRelay, OUTPUT);
+    pinMode(this->waterRelay, OUTPUT);
     this->timer_start = millis();
 }
 
@@ -79,10 +80,10 @@ void Navigator::fanOff()
 
 void Navigator::waterOn()
 {
-    digitalWrite(this->water, HIGH);
+    digitalWrite(this->waterRelay, HIGH);
 }
 
 void Navigator::waterOff()
 {
-    digitalWrite(this->water, LOW);
+    digitalWrite(this->waterRelay, LOW);
 }

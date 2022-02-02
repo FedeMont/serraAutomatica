@@ -29,10 +29,9 @@ void SerialCommunication::send(const String &text) {
     Serial1.print(message);
 }
 
-Command SerialCommunication::commandParser(const String &message) {
+Command SerialCommunication::commandParser(const String &completeMessage) {
     Command command;
 
-    String completeMessage = message.substring(message.indexOf('/'));
     String type = completeMessage.substring(0, 2);
     String msg = completeMessage.substring(2);
     String text;

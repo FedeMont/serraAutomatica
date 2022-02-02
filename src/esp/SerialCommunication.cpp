@@ -42,11 +42,9 @@ void SerialCommunication::send(const String &text)
     this->mySerial.print(message);
 }
 
-Command SerialCommunication::commandParser(const String &message)
+Command SerialCommunication::commandParser(const String &completeMessage)
 {
     Command command;
-
-    String completeMessage = message.substring(message.indexOf('/'));
     String type = completeMessage.substring(0, 2);
     String msg = completeMessage.substring(2);
     String textAndValue = msg.substring(0, msg.indexOf('&'));
