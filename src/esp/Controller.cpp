@@ -53,7 +53,7 @@ void Controller::begin()
 
     this->webServer.begin();
 
-    this->botHandler.begin(this->telegram_chat_id, &this->lightState, &this->fanState, &this->waterState, this->wiFiConfiguration.getIpAddress());
+    this->botHandler.begin(this->telegram_chat_id, &this->lightState, &this->fanState, &this->waterState, &this->manualWateringTimer, this->wiFiConfiguration.getIpAddress());
     this->botHandler.setCommands();
 
     this->navigator.begin();
@@ -155,7 +155,15 @@ void Controller::autoStart(DayCycle dayCycle, bool shouldWatering)
             this->navigator.waterOff();
         break;
     case State_ON:
-        this->navigator.waterOn();
+        if (millis() - this->manualWateringTimer > 180000) // 3 minuti = 3 * 60s * 1000ms = 180000ms
+        {
+            this->waterState = State_OFF;
+        }
+        else
+        {
+            this->navigator.waterOn();
+        }
+        
         break;
     case State_OFF:
         this->navigator.waterOff();

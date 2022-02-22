@@ -23,6 +23,7 @@ private:
     MyClock myClock;
 
     int soilSensorPin;
+    long manualWateringTimer;
 
     const char* net_ssid;
     const char* net_psw;

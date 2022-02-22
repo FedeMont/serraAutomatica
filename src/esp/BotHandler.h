@@ -34,6 +34,7 @@ private:
     State *lightState;
     State *fanState;
     State *waterState;
+    long *wateringTimer;
     DayCycle dayCycle;
     float soilSensorPercentage;
     bool shouldWatering;
@@ -58,7 +59,7 @@ public:
     BotHandler(const String &, WiFiClientSecure &, String);
     ~BotHandler();
 
-    void begin(String, State *, State *, State *, const String &);
+    void begin(String, State *, State *, State *, long *, const String &);
 
     void setCommands();
     void setCommands(const String &);

@@ -31,7 +31,7 @@ void BotHandler::setCommands(const String &commands)
     this->bot.setMyCommands(commands);
 }
 
-void BotHandler::begin(String chatId, State *lightState, State *fanState, State *waterState, const String &ipAddress)
+void BotHandler::begin(String chatId, State *lightState, State *fanState, State *waterState, long *wateringTimer, const String &ipAddress)
 {
     if (chatId != "")
     {
@@ -44,6 +44,7 @@ void BotHandler::begin(String chatId, State *lightState, State *fanState, State 
     this->lightState = lightState;
     this->fanState = fanState;
     this->waterState = waterState;
+    this->wateringTimer = wateringTimer;
 
     this->ipAddress = ipAddress;
 
@@ -250,6 +251,7 @@ void BotHandler::handleNewMessages(int newMessages)
         else if (text == "/togglewater")
         {
             *this->waterState = State(((*this->waterState) + 1) % 3);
+            *this->wateringTimer = millis();
             this->sendMessage(chatId, "The water is: " + this->stateToString[*this->waterState]);
         }
         else if (text == "/togglefan")
