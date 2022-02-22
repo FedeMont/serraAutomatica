@@ -82,6 +82,7 @@ void  Controller::deserializeJson(DynamicJsonDocument &json)
 {
     this->net_ssid = json["net_ssid"];
     this->net_psw = json["net_pswd"];
+    this->wateringTimerDelay = json["watering_timer"];
 
     this->is_config_static = String(json["net_static"]) == "true";
 
@@ -155,7 +156,7 @@ void Controller::autoStart(DayCycle dayCycle, bool shouldWatering)
             this->navigator.waterOff();
         break;
     case State_ON:
-        if (millis() - this->manualWateringTimer > 180000) // 3 minuti = 3 * 60s * 1000ms = 180000ms
+        if (millis() - this->manualWateringTimer > this->wateringTimerDelay)
         {
             this->waterState = State_OFF;
         }

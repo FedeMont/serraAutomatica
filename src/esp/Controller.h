@@ -27,6 +27,7 @@ private:
 
     const char* net_ssid;
     const char* net_psw;
+    int wateringTimerDelay;
 
     bool is_config_static;
     int ip[4];

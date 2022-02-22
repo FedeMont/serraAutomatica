@@ -22,6 +22,11 @@
           <input type="text" name="Wi-Fi_password" id="Wi-Fi_password">
         </label>
 
+        <label class="">
+          <span>Watering timer (ms):</span>
+          <input type="int" name="Watering_timer" id="Watering_timer">
+        </label>
+
 <!--        <label class="">-->
 <!--          <span>MQTT Server</span>-->
 <!--          <input type="text" name="mqtt_server" id="mqtt_server">-->
@@ -121,6 +126,7 @@
 
           let net_ssid = document.querySelector("#Wi-Fi_SSID").value;
           let net_pswd = document.querySelector("#Wi-Fi_password").value;
+          let watering_timer = document.querySelector("#Watering_timer").value;
 
           // let mqtt_server = document.querySelector("#mqtt_server").value;
           // let mqtt_port = document.querySelector("#mqtt_port").value;
@@ -164,6 +170,7 @@
           let params = {
             net_ssid: net_ssid,
             net_pswd: net_pswd,
+            watering_timer: watering_timer,
             net_static: isIPStatic,
             net_ip_0: net_ip_0[0],
             net_ip_1: net_ip_0[1],

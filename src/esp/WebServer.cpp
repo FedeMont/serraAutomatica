@@ -55,6 +55,10 @@ void WebServer::save_json()
         json["net_pswd"] = this->server.arg("net_pswd");
     }
 
+    if(this->server.arg("watering_timer") != "") { // watering timer
+        json["watering_timer"] = this->server.arg("watering_timer");
+    }
+
     if (this->server.arg("net_static") != "") { // 1-0 abilita configurazione statica
         json["net_static"] = this->server.arg("net_static");
     }
@@ -127,9 +131,9 @@ void WebServer::save_json()
 
     this->fileSystem->write("/config.json", json);
 
-    this->server.send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia il dispositivo appena led rosso spento"); // messaggio di callback per client web
+    this->server.send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia il dispositivo."); // messaggio di callback per client web
     Serial.println("");
-    Serial.println("Riavvia il dispositivo appena led rosso spento");
+    Serial.println("Riavvia il dispositivo.");
 }
 
 void WebServer::handleClient()
