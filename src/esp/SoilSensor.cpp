@@ -1,10 +1,9 @@
-#include <Energia.h>
 #include "SoilSensor.h"
 
-SoilSensor::SoilSensor(/* args */)
-{
-    this->pin = 28;
+#undef DEBUG
 
+SoilSensor::SoilSensor()
+{
     this->maxValue = 1023;
     this->minValue = 0;
     this->dryThreshold = (3 * (this->maxValue - this->minValue) / 5);
@@ -15,11 +14,11 @@ SoilSensor::~SoilSensor()
 {
 }
 
-// public
-int SoilSensor::readSensor()
+int SoilSensor::readSensor(int pin)
 {
-    int value = analogRead(this->pin);
+    int value = analogRead(pin);
 #ifdef DEBUG
+    Serial.println("Pin:" + String(pin));
     Serial.println("Soil: " + String(value));
 #endif
     return value;

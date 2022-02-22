@@ -1,0 +1,112 @@
+* {
+  vertical-align: baseline;
+  font-weight: inherit;
+  /*font-family: 'Source Sans Pro', sans-serif;*/
+  font-family: 'Roboto', sans-serif;
+  font-style: inherit;
+  /*font-size: 20px;*/
+  /*border: 0 none;*/
+  outline: 0;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  color: #F3F0E2;
+  /*-webkit-touch-callout: none; !* iOS Safari *!*/
+  /*-webkit-user-select: none; !* Safari *!*/
+  /*-moz-user-select: none; !* Firefox *!*/
+  /*-ms-user-select: none; !* Internet Explorer/Edge *!*/
+  /*user-select: none; !* Non-prefixed version, currently supported by Chrome and Opera *!*/
+}
+
+html {
+  width: 100%;
+  height: 100%;
+  background-color: #2E364F;
+}
+
+body {
+  background-color: #F3F0E2;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+
+.nav-bar {
+  width: 100%;
+  padding: 20px;
+  background-color: #2E364F;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.nav-bar h1 {
+  font-size: 27px;
+}
+
+.container {
+  width: 100%;
+  background-color: #F3F0E2;
+}
+
+form {
+  width: 80%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  text-align: center;
+}
+
+label {
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+span {
+  width: 100%;
+  padding: 10px;
+  text-align: left;
+  color: #2E364F;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+label {
+  margin: 0 auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+input {
+  padding: 10px;
+  color: #002C3E;
+  font-size: 17px;
+}
+
+input[type="button"] {
+  width: 37%;
+  margin: 0 auto;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  background-color: #EF5939;
+  color: #F3F0E2;
+  font-size: 20px;
+  -webkit-appearance: none;
+}
+
+.static_ip_checkbox {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.static_ip_checkbox span {
+  text-align: left;
+  width: 24%;
+}

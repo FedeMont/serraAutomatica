@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Automatic Greenhouse Configuration</title>
+    <link rel="stylesheet" href="css/css.css">
+  </head>
+  <body>
+    <div class="nav-bar">
+      <h1>Automatic Greenhouse Configuration</h1>
+    </div>
+    <div class="container">
+      <form action="">
+
+        <label class="">
+          <span>Wi-Fi Network SSID:</span>
+          <input type="text" name="Wi-Fi_SSID" id="Wi-Fi_SSID">
+        </label>
+
+        <label class="">
+          <span>Wi-Fi Network password:</span>
+          <input type="text" name="Wi-Fi_password" id="Wi-Fi_password">
+        </label>
+
+<!--        <label class="">-->
+<!--          <span>MQTT Server</span>-->
+<!--          <input type="text" name="mqtt_server" id="mqtt_server">-->
+<!--        </label>-->
+
+<!--        <label class="">-->
+<!--          <span>MQTT Port</span>-->
+<!--          <input type="number" name="mqtt_port" id="mqtt_port">-->
+<!--        </label>-->
+
+<!--        <label class="">-->
+<!--          <span>MQTT Username</span>-->
+<!--          <input type="text" name="mqtt_username" id="mqtt_username">-->
+<!--        </label>-->
+
+<!--        <label class="">-->
+<!--          <span>MQTT Passsword</span>-->
+<!--          <input type="text" name="mqtt_password" id="mqtt_password">-->
+<!--        </label>-->
+
+<!--        <label class="">-->
+<!--          <span>MQTT Topic</span>-->
+<!--          <input type="text" name="mqtt_topic" id="mqtt_topic">-->
+<!--        </label>-->
+
+        <label class="static_ip_checkbox">
+          <span>Static IP:</span>
+          <input type="checkbox" name="static_ip" id="static_ip">
+        </label>
+
+        <div id="net_data">
+          <label class="">
+            <span>IP address:</span>
+            <input type="text" name="ip_address" id="ip_address">
+          </label>
+
+          <label class="">
+            <span>Subnet Mask:</span>
+            <input type="text" name="subnet_mask" id="subnet_mask">
+          </label>
+
+          <label class="">
+            <span>Default Gateway Address:</span>
+            <input type="text" name="gateway_address" id="gateway_address">
+          </label>
+
+          <label class="">
+            <span>DNS address:</span>
+            <input type="text" name="dns_address" id="dns_address">
+          </label>
+        </div>
+
+        <input type="button" id="save" value="Save Configuration">
+
+      </form>
+
+    </div>
+    <script>
+
+      let checkBox = document.querySelector("#static_ip");
+      let isIPStatic = false;
+      let netData = document.querySelector("#net_data");
+      netData.style.display = "none";
+
+      checkBox.addEventListener("change", (elem) => {
+        if (elem.target.checked) {
+          netData.style.display = "";
+          isIPStatic = true;
+        } else {
+          netData.style.display = "none";
+          isIPStatic = false;
+        }
+      });
+
+      let serialize = function(obj) {
+        let str = [];
+        for (let p in obj)
+          if (obj.hasOwnProperty(p)) {
+            str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+          }
+        return str.join("&");
+      };
+
+      function g(f) { /in/.test(document.readyState) ? setTimeout('g(' + f + ')', 9) : f() }
+
+      g(function() { // On document ready
+
+        let reGex = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
+        let reGexSM = /^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$/;
+
+        document.querySelector("#save").addEventListener("click", function(e) {
+          // e.preventDefault(); //stop form from submitting
+          let net_dfgw_0 = ['', '', '', ''];
+          let net_ip_0 = ['', '', '', ''];
+          let net_dns_0 = ['', '', '', ''];
+          let net_sm_0 = ['', '', '', ''];
+
+          let net_ssid = document.querySelector("#Wi-Fi_SSID").value;
+          let net_pswd = document.querySelector("#Wi-Fi_password").value;
+
+          // let mqtt_server = document.querySelector("#mqtt_server").value;
+          // let mqtt_port = document.querySelector("#mqtt_port").value;
+          // let mqtt_username = document.querySelector("#mqtt_username").value;
+          // let mqtt_password = document.querySelector("#mqtt_password").value;
+          // let mqtt_topic = document.querySelector("#mqtt_topic").value;
+
+          if (isIPStatic) {
+            if (reGex.test(document.querySelector("#ip_address").value)) {
+              net_ip_0 = document.querySelector("#ip_address").value.split(".")
+            } else {
+              alert("Inserisci un IP dispositivo valido");
+              return false;
+            }
+
+            if (reGex.test(document.querySelector("#dns_address").value)) {
+              net_dns_0 = document.querySelector("#dns_address").value.split(".")
+            } else {
+              alert("Inserisci un IP DNS valido");
+              return false;
+            }
+
+            if (reGex.test(document.querySelector("#gateway_address").value)) {
+              net_dfgw_0 = document.querySelector("#gateway_address").value.split(".")
+            } else {
+              alert("Inserisci un IP Default Gateway valido");
+              return false;
+            }
+
+            if (reGexSM.test(document.querySelector("#subnet_mask").value)) {
+              net_sm_0 = document.querySelector("#subnet_mask").value.split(".")
+            } else {
+              alert("Inserisci un IP subnet mask valido");
+              return false;
+            }
+          }
+
+          document.body.style.cursor = 'wait';
+          document.querySelector("#save").style.backgroundColor = "#2D5D7C";
+
+          let params = {
+            net_ssid: net_ssid,
+            net_pswd: net_pswd,
+            net_static: isIPStatic,
+            net_ip_0: net_ip_0[0],
+            net_ip_1: net_ip_0[1],
+            net_ip_2: net_ip_0[2],
+            net_ip_3: net_ip_0[3],
+            net_dns_0: net_dns_0[0],
+            net_dns_1: net_dns_0[1],
+            net_dns_2: net_dns_0[2],
+            net_dns_3: net_dns_0[3],
+            net_dfgw_0: net_dfgw_0[0],
+            net_dfgw_1: net_dfgw_0[1],
+            net_dfgw_2: net_dfgw_0[2],
+            net_dfgw_3: net_dfgw_0[3],
+            net_sm_0: net_sm_0[0],
+            net_sm_1: net_sm_0[1],
+            net_sm_2: net_sm_0[2],
+            net_sm_3: net_sm_0[3],
+            // mqtt_server: mqtt_server,
+            // mqtt_port: mqtt_port,
+            // mqtt_username: mqtt_username,
+            // mqtt_password: mqtt_password,
+            // mqtt_topic: mqtt_topic
+          };
+
+          console.log(params);
+          let enc = serialize(params);
+
+          let r = new XMLHttpRequest();
+          r.open('POST', '/save');
+          r.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+          r.onload = function() {
+            if (r.status >= 200 && r.status < 400) { // Success!
+              let resp = r.responseText;
+              console.log(resp);
+              alert(resp);
+            } else { // We reached our target server, but it returned an error (500)
+              let resp = r.responseText;
+              console.error(resp);
+              alert(resp);
+            }
+            document.body.style.cursor = 'default';
+            document.querySelector("#save").style.backgroundColor = "";
+          };
+          r.onerror = function() {
+            // There was a connection error of some sort
+            document.body.style.cursor = 'default';
+            document.querySelector("#save").style.backgroundColor = "";
+            console.error('Errore di connessione: ' + r.responseText);
+            alert(r.responseText);
+          };
+          r.send(enc);
+        });
+
+      });
+
+    </script>
+  </body>
+</html>

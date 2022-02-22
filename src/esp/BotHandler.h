@@ -4,14 +4,22 @@
 #include <Arduino.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h> // Universal Telegram Bot Library written by Brian Lough: https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot
-
-#include "SerialCommunication.h"
+#include "FileSystem.h"
 #include "Types.h"
 
+#define TELEGRAM_DEBUG
 
 class BotHandler
 {
 private:
+    String dayCycleToString[3] = {"DAY", "NIGHT", "NONSET"};
+    String stateToString[3] = {"AUTO", "OFF", "ON"};
+    String waterStateToString[3] = {"AUTO", "CLOSED", "OPEN"};
+
+    WiFiClientSecure client;
+
+    FileSystem *fileSystem;
+
     const String BOT_TOKEN = "5054228318:AAEY4d4M9VQMujE3A-zhw_ao8a5ieW746nU";
     const String BOT_CONNECTION_PSW = "GreenHouseProject2022";
     String logginChatId = "";
@@ -20,18 +28,22 @@ private:
     String botCommands;
     String commandsList;
 
-    SerialCommunication *mySerial;
-
     unsigned long lastTimeBotRan;
     int botRequestDelay = 1000; // checks for new messages time
 
-    bool shouldSetTime = false;
+    State *lightState;
+    State *fanState;
+    State *waterState;
+    DayCycle dayCycle;
+    float soilSensorPercentage;
+    bool shouldWatering;
+    String ipAddress;
 
     int getUpdates();
     telegramMessage getMessage(int);
 
     bool isIdPermitted(String, bool);
-    void handleNewMessages(int, bool);
+    void handleNewMessages(int);
 
     void startMessage(String, String);
 
@@ -41,11 +53,12 @@ private:
 public:
     UniversalTelegramBot bot;
 
+    BotHandler(FileSystem *);
     BotHandler(WiFiClientSecure &);
     BotHandler(const String &, WiFiClientSecure &, String);
     ~BotHandler();
 
-    void begin(SerialCommunication *);
+    void begin(String, State *, State *, State *, const String &);
 
     void setCommands();
     void setCommands(const String &);
@@ -54,7 +67,7 @@ public:
 
     void setAutomatic(String);
 
-    void start(bool);
+    void start(DayCycle, float, bool);
 };
 
 #endif

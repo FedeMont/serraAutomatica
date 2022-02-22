@@ -1,195 +1,166 @@
 #include "Controller.h"
 
-Controller::Controller()
+Controller::Controller() : webServer(&this->fileSystem), botHandler(&this->fileSystem)
 {
-    this->hasConnectionTimedOut = false;
-    this->isConnectedToMSP = false;
-
-    this->infoMessage = "";
 }
 
 Controller::~Controller()
 {
 }
 
-// public
-void Controller::begin(BotHandler *botHandler, WiFiConfiguration *wiFi, NTPClient *timeClient)
+void Controller::begin()
 {
+    pinMode(D4, OUTPUT);
     Serial.begin(115200);
-    this->mySerial.begin(115200);
-    pinMode(2, OUTPUT);
+#ifdef DEBUG
+    Serial.println("\n");
+#endif
 
-    this->botHandler = botHandler;
-    this->wifiConfiguration = wiFi;
-    this->timeAndDateClient = timeClient;
+    this->fileSystem = FileSystem();
+    this->wiFiConfiguration = WiFiConfiguration();
+    // this->webServer = WebServer(&this->fileSystem);
+    // this->botHandler = BotHandler(&this->fileSystem);
+    this->navigator = Navigator();
+    this->soilSensor = SoilSensor();
+    this->myClock = MyClock();
 
-    this->botHandler->begin(&this->mySerial);
-    this->wifiConfiguration->connect();
-    this->timeAndDateClient->begin();
+    this->lightState = State_AUTO;
+    this->fanState = State_AUTO;
+    this->waterState = State_AUTO;
 
-    this->mySerial.send("/sSTART");
-    this->botHandler->setCommands();
-}
+    this->fileSystem.begin();
 
-void Controller::readFromMSP(const String &msg)
-{
-    Command command = this->mySerial.commandParser(msg);
-    if (command.isValid)
+    const size_t capacity = JSON_OBJECT_SIZE(24) + 420;
+    DynamicJsonDocument json(capacity);
+
+    if (this->fileSystem.read("/config.json", &json))
     {
-        switch (command.commandType)
-        {
-        case 's':
-        { // start
-#ifdef DEBUG
-            Serial.print("start: ");
-            Serial.println(command.commandText);
-#endif
-            this->threeWayHandShake(command.commandText);
-        }
-        break;
-        case 'd':
-        { // date
-#ifdef DEBUG
-            Serial.print("date: ");
-            Serial.println(command.commandText);
-            Serial.println(command.chatId);
-            Serial.println(this->getTime());
-#endif
-            this->mySerial.send(String("/d" + this->getTime()) + "&" + command.chatId);
-        }
-        break;
-        case 'c':
-        { // command
-#ifdef DEBUG
-            Serial.print("command: ");
-            Serial.println(command.commandText);
-            Serial.println(command.chatId);
-#endif
-        }
-        break;
-        case 'm':
-        {
-#ifdef DEBUG
-            Serial.print("command: ");
-            Serial.println(command.commandText);
-            Serial.println(command.chatId);
-#endif
-            if (command.commandText == "automatic")
-            {
-                this->botHandler->setAutomatic(command.chatId);
-            }
-        }
-        break;
-        case 'i':
-        { // info
-#ifdef DEBUG
-            Serial.print("info: ");
-            Serial.println(command.commandText);
-            Serial.println(command.chatId);
-            Serial.println(this->infoMessage);
-#endif
-            this->stateMsgParser(command);
-        }
-        break;
-        case 'e':
-        { //end
-#ifdef DEBUG
-            Serial.print("end: ");
-            Serial.println(command.commandText);
-            Serial.println(command.chatId);
-#endif
-            this->botHandler->sendMessage(command.chatId, this->infoMessage);
-            this->infoMessage = "";
-        }
-        break;
-
-        default:
-            break;
-        }
+        this->deserializeJson(json);
+        this->wiFiConfiguration.setCredentials(this->net_ssid, this->net_psw);
     }
-}
 
-bool Controller::getConnectionState()
-{
-    return this->isConnectedToMSP;
+    bool isWifiConnected =
+        (this->is_config_static)?
+        this->wiFiConfiguration.connect(this->ip, this->dns, this->default_gw, this->subnet_mask)
+        :
+        this->wiFiConfiguration.connect()
+        ;
+
+    if (!isWifiConnected)
+    {
+        this->wiFiConfiguration.setAPMode();
+    }
+
+    this->webServer.begin();
+
+    this->botHandler.begin(this->telegram_chat_id, &this->lightState, &this->fanState, &this->waterState, this->wiFiConfiguration.getIpAddress());
+    this->botHandler.setCommands();
+
+    this->navigator.begin();
+    this->myClock.begin();
+
+    this->soilSensorPin = this->navigator.getSoilSensorPin();
 }
 
 void Controller::start()
 {
-    this->botHandler->start(!this->hasConnectionTimedOut && this->isConnectedToMSP);
+    this->webServer.handleClient();
+    this->myClock.clock();
+
+    DayCycle dayCycle = this->myClock.getDayCycle();
+    int soilSensorValue = this->soilSensor.readSensor(this->soilSensorPin);
+    float soilSensorPercentage = this->soilSensor.valueToPercentage(soilSensorValue);
+    bool shouldWatering = this->soilSensor.shouldWatering(soilSensorValue);
+
+    this->botHandler.start(dayCycle, soilSensorPercentage, shouldWatering);
+
+    this->autoStart(dayCycle, shouldWatering);
 }
 
 // private
-String Controller::getTime()
+void  Controller::deserializeJson(DynamicJsonDocument &json)
 {
-    this->timeAndDateClient->update();
-    return this->timeAndDateClient->getFormattedTime().substring(0, 5);
+    this->net_ssid = json["net_ssid"];
+    this->net_psw = json["net_pswd"];
+
+    this->is_config_static = String(json["net_static"]) == "true";
+
+    this->ip[0] = json["net_ip_0"];
+    this->ip[1] = json["net_ip_1"];
+    this->ip[2] = json["net_ip_2"];
+    this->ip[3] = json["net_ip_3"];
+
+    this->default_gw[0] = json["net_dfgw_0"];
+    this->default_gw[1] = json["net_dfgw_1"];
+    this->default_gw[2] = json["net_dfgw_2"];
+    this->default_gw[3] = json["net_dfgw_3"];
+
+    this->subnet_mask[0] = json["net_sm_0"];
+    this->subnet_mask[1] = json["net_sm_1"];
+    this->subnet_mask[2] = json["net_sm_2"];
+    this->subnet_mask[3] = json["net_sm_3"];
+
+    this->dns[0] = json["net_dns_0"];
+    this->dns[1] = json["net_dns_1"];
+    this->dns[2] = json["net_dns_2"];
+    this->dns[3] = json["net_dns_3"];
+
+    this->telegram_chat_id = String(json["telegram_chat_id"]);
 }
 
-void Controller::stateMsgParser(Command command)
+void Controller::autoStart(DayCycle dayCycle, bool shouldWatering)
 {
-    if (command.commandText == "mode")
+    switch (this->lightState)
     {
-        this->infoMessage += "The green house is in " + command.commandValue + " mode.\n\n";
+    case State_AUTO:
+        if (dayCycle == DayCycle_DAY)
+            this->navigator.lightOn();
+        else
+            this->navigator.lightOff();
+        break;
+    case State_ON:
+        this->navigator.lightOn();
+        break;
+    case State_OFF:
+        this->navigator.lightOff();
+        break;
+    default:
+        break;
     }
-    else if (command.commandText == "time")
-    {
-        this->infoMessage += "It's " + command.commandValue + " ";
-    }
-    else if (command.commandText == "times")
-    {
-        this->infoMessage += "Time set to " + command.commandValue + ".";
-    }
-    else if (command.commandText == "day")
-    {
-        this->infoMessage += "and the " + command.commandValue + ", ahem... I mean ";
-    }
-    else if (command.commandText == "light")
-    {
-        this->infoMessage += "the light is " + command.commandValue + ".\n";
-    }
-    else if (command.commandText == "lights")
-    {
-        this->infoMessage += "The light is " + command.commandValue + ".";
-    }
-    else if (command.commandText == "soil")
-    {
-        this->infoMessage += "Soil humdity is at " + command.commandValue + "%, and ";
-    }
-    else if (command.commandText == "water")
-    {
-        this->infoMessage += "the plant is " + command.commandValue + "being watered.\n";
-    }
-    else if (command.commandText == "waters")
-    {
-        this->infoMessage += "The plant is " + command.commandValue + "being watered.";
-    }
-    else if (command.commandText == "wateron")
-    {
-        this->infoMessage += "Water will be open for 3 minutes.";
-    }
-    else if (command.commandText == "temperature")
-    {
-        this->infoMessage += "The temperature sensor is measuring " + command.commandValue + "°C, so ";
-    }
-    else if (command.commandText == "fan")
-    {
-        this->infoMessage += "the fan is " + command.commandValue + ".";
-    }
-    else if (command.commandText == "fans")
-    {
-        this->infoMessage += "The fan is " + command.commandValue + ".";
-    }
-}
 
-void Controller::threeWayHandShake(const String &text)
-{
-    if (text == "START2")
+    switch (this->fanState)
     {
-        this->isConnectedToMSP = true;
-#ifdef DEBUG
-        Serial.println("Connected to MSP");
-#endif
-        this->mySerial.send("/sSTARTACK");
+    case State_AUTO:
+        if (dayCycle == DayCycle_DAY)
+            this->navigator.fanOn();
+        else
+            this->navigator.fanOff();
+        break;
+    case State_ON:
+        this->navigator.fanOn();
+        break;
+    case State_OFF:
+        this->navigator.fanOff();
+        break;
+    default:
+        break;
+    }
+
+    switch (this->waterState)
+    {
+    case State_AUTO:
+        if (shouldWatering)
+            this->navigator.waterOn();
+        else
+            this->navigator.waterOff();
+        break;
+    case State_ON:
+        this->navigator.waterOn();
+        break;
+    case State_OFF:
+        this->navigator.waterOff();
+        break;
+    default:
+        break;
     }
 }
