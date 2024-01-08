@@ -10,8 +10,11 @@ Controller::~Controller()
 
 void Controller::begin()
 {
+#ifdef DEBUG
+    this->getFreeHeap();
+#endif
+
     pinMode(D4, OUTPUT);
-    Serial.begin(115200);
 #ifdef DEBUG
     Serial.println("\n");
 #endif
@@ -28,7 +31,15 @@ void Controller::begin()
     this->fanState = State_AUTO;
     this->waterState = State_AUTO;
 
+#ifdef DEBUG
+    this->getFreeHeap();
+#endif
+
     this->fileSystem.begin();
+
+#ifdef DEBUG
+    this->getFreeHeap();
+#endif
 
     const size_t capacity = JSON_OBJECT_SIZE(24) + 420;
     DynamicJsonDocument json(capacity);
@@ -50,11 +61,28 @@ void Controller::begin()
     {
         this->wiFiConfiguration.setAPMode();
     }
+#ifdef DEBUG
+    this->getFreeHeap();
+#endif
 
     this->webServer.begin();
 
+#ifdef DEBUG
+    this->getFreeHeap();
+#endif
+
     this->botHandler.begin(this->telegram_chat_id, &this->lightState, &this->fanState, &this->waterState, &this->manualWateringTimer, this->wiFiConfiguration.getIpAddress());
-    this->botHandler.setCommands();
+#ifdef DEBUG
+    this->getFreeHeap();
+#endif
+
+//     yield();
+
+//     this->botHandler.setCommands();
+// #ifdef DEBUG
+//     Serial.println("commands");
+//     this->getFreeHeap();
+// #endif
 
     this->navigator.begin();
     this->myClock.begin();
@@ -172,4 +200,9 @@ void Controller::autoStart(DayCycle dayCycle, bool shouldWatering)
     default:
         break;
     }
+}
+
+void Controller::getFreeHeap() {
+    Serial.print(F("Free heap: "));
+    Serial.println(ESP.getFreeHeap());
 }

@@ -69,6 +69,8 @@ public:
     void setAutomatic(String);
 
     void start(DayCycle, float, bool);
+
+    void getFreeHeap();
 };
 
 #endif

@@ -50,6 +50,8 @@ public:
     void begin();
 
     void start();
+
+    void getFreeHeap();
 };
 
 #endif //__CONTROLLER_H__

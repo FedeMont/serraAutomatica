@@ -33,6 +33,10 @@ void BotHandler::setCommands(const String &commands)
 
 void BotHandler::begin(String chatId, State *lightState, State *fanState, State *waterState, long *wateringTimer, const String &ipAddress)
 {
+#ifdef DEBUG
+    this->getFreeHeap();
+#endif
+
     if (chatId != "")
     {
         this->permittedChatId = chatId;
@@ -47,6 +51,9 @@ void BotHandler::begin(String chatId, State *lightState, State *fanState, State 
     this->wateringTimer = wateringTimer;
 
     this->ipAddress = ipAddress;
+#ifdef DEBUG
+    this->getFreeHeap();
+#endif
 
     this->botCommands = ("[" +
                         String("{\"command\":\"/start\", \"description\":\"Start bot\"},") +
@@ -61,6 +68,9 @@ void BotHandler::begin(String chatId, State *lightState, State *fanState, State 
                         String("{\"command\":\"/end\",\"description\":\"Close connection\"},") +
                         String("{\"command\":\"/help\",\"description\":\"Get help\"}") +
                          "]");
+#ifdef DEBUG
+    this->getFreeHeap();
+#endif
 
     this->commandsList = (
                         String("Use the following commands to control your green house.\n\n") + 
@@ -73,6 +83,9 @@ void BotHandler::begin(String chatId, State *lightState, State *fanState, State 
                         String("/end to close the connection\n") + 
                         String("/help to get the command list\n")
                         );
+#ifdef DEBUG
+    this->getFreeHeap();
+#endif
 }
 
 void BotHandler::sendMessage(String chatId, String text)
@@ -329,4 +342,9 @@ void BotHandler::help(String chatId)
     help += this->commandsList;
 
     this->sendMessage(chatId, help);
+}
+
+void BotHandler::getFreeHeap() {
+    Serial.print(F("BH::Free heap: "));
+    Serial.println(ESP.getFreeHeap());
 }

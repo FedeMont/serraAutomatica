@@ -2,22 +2,22 @@
 #define __WIFICONFIGURATION_H__
 
 #include <Arduino.h>
+#include "Utils.h"
 #include <ESP8266WiFi.h>
-#include "Types.h"
 
 class WiFiConfiguration
 {
 private:
-    int connection_timeout = 15000;
+    int connection_timeout;
     long connection_timeout_timer;
-    const char *ssid;
-    const char *password;
+    String ssid;
+    String password;
 public:
     WiFiConfiguration();
-    WiFiConfiguration(const char *, const char *);
+    WiFiConfiguration(String, String);
     ~WiFiConfiguration();
 
-    void setCredentials(const char *, const char *);
+    void setCredentials(String, String);
     bool connect();
     bool connect(int [4], int[4], int[4], int [4]);
 

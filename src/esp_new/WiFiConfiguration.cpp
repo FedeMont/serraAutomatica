@@ -2,19 +2,21 @@
 
 WiFiConfiguration::WiFiConfiguration()
 {
+    this->connection_timeout = 15000;
 }
 
-WiFiConfiguration::WiFiConfiguration(const char *ssid, const char *psw)
+WiFiConfiguration::WiFiConfiguration(String ssid, String psw)
 {
     this->ssid = ssid;
     this->password = psw;
+    this->connection_timeout = 15000;
 }
 
 WiFiConfiguration::~WiFiConfiguration()
 {
 }
 
-void WiFiConfiguration::setCredentials(const char *ssid, const char *password)
+void WiFiConfiguration::setCredentials(String ssid, String password)
 {
     this->ssid = ssid;
     this->password = password;
@@ -30,23 +32,24 @@ bool WiFiConfiguration::connect()
     while (WiFi.status() != WL_CONNECTED)
     {
 #ifdef DEBUG
-        Serial.println("Connecting to WiFi...");
+        Serial.println(F("Connecting to WiFi..."));
 #endif
+
         digitalWrite(D4, HIGH);
         delay(500);
         digitalWrite(D4, LOW);
-        delay(500);
+        delay(500); 
 
         if (millis() - this->connection_timeout_timer > this->connection_timeout)
         {
 #ifdef DEBUG
-            Serial.println("Connection timed out.");
+            Serial.println(F("Connection timed out."));
 #endif
             return false;
         }
     }
 
-#ifdef DEBUG
+    #ifdef DEBUG
     Serial.println(this->getIpAddress());
 #endif
     digitalWrite(D4, LOW);
@@ -59,7 +62,7 @@ bool WiFiConfiguration::connect()
 bool WiFiConfiguration::connect(int ip[4], int dns[4], int gw[4], int sm[4])
 {
 #ifdef DEBUG
-    Serial.println("Configurazione statica...");
+    Serial.println(F("Configurazione statica..."));
 #endif
 
     IPAddress ip_addr(ip[0], ip[1], ip[2], ip[3]);
@@ -68,14 +71,19 @@ bool WiFiConfiguration::connect(int ip[4], int dns[4], int gw[4], int sm[4])
     IPAddress sm_addr(sm[0], sm[1], sm[2], sm[3]);
 
 #ifdef DEBUG
+    Serial.print(F("IP: "));
     Serial.println(ip_addr);
+    Serial.print(F("Gateway: "));
     Serial.println(gw_addr);
+    Serial.print(F("Subnet: "));
     Serial.println(sm_addr);
+    Serial.print(F("DNS: "));
     Serial.println(dns_addr);
 #endif
 
     if (!WiFi.config(ip_addr, gw_addr, sm_addr, dns_addr)) { // Configurazione statica del web-server in caso di Client
-        Serial.println("Errore nella configurazione statica.");
+        Serial.println(F("Errore nella configurazione statica."));
+        return false;
     }
 
     return this->connect();
@@ -89,24 +97,23 @@ void WiFiConfiguration::setAPMode()
     WiFi.softAP("Automatic-Green-House", "AutomaticGreenHouse");
 
 #ifdef DEBUG
-    Serial.print("Access Point Mode: ");
+    Serial.print(F("Access Point Mode: "));
     Serial.println(this->getIpAddress());
 #endif
 }
 
 String WiFiConfiguration::getIpAddress()
 {
-    String ip = "";
     switch (WiFi.getMode())
     {
     case WIFI_STA:
-        ip = WiFi.localIP().toString();
+        return WiFi.localIP().toString();
         break;
     case WIFI_AP:
-        ip = WiFi.softAPIP().toString();
+        return WiFi.softAPIP().toString();
+        break;
     default:
+        return "";
         break;
     }
-
-    return ip;
 }

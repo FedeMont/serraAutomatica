@@ -1,22 +1,15 @@
 #include <Arduino.h>
 #include "Controller.h"
+
 Controller controller;
 
 void setup()
 {
     Serial.begin(115200);
-
-    delay(1000);
-
-    // ESP.wdtDisable();  // Disable WDT before changing the timeout
-    // ESP.wdtEnable(30000);
-
     controller.begin();
 }
 
 void loop()
 {
     controller.start();
-
-    // ESP.wdtFeed();
 }
